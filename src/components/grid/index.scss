@@ -1,0 +1,14 @@
+.grid-container {
+  padding: 16px;
+
+  .actions {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      cursor: pointer;
+    }
+  }
+}
