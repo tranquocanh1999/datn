@@ -1,3 +1,8 @@
+@import "./shared/styles/mui";
+@import "./shared/styles/text";
+@import "./shared/styles/spacing";
+@import "./shared/styles/sizing";
+
 .App {
   text-align: center;
 }
@@ -36,4 +41,8 @@
   100% {
     transform: translateY(0px);
   }
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }

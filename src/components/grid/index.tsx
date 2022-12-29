@@ -1,23 +1,52 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Box } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import "./index.scss";
+import style from "./index.module.scss";
 import { Edit, DeleteOutline } from "@mui/icons-material";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { red } from "@mui/material/colors";
-interface GridProp {
-  columns: GridColDef[];
-  data: any;
-  sxBox: { height: number | string; width: string };
-  action?: { edit?: boolean; delete?: boolean };
-}
+import { GridProp } from "../../shared/utils/inteface";
+import ConfirmDialog from "../confirm";
+
 const Grid: React.FC<GridProp> = (props): JSX.Element => {
-  const { columns, data, sxBox, action = { edit: true, delete: true } } = props;
+  const {
+    columns,
+    data,
+    sxBox,
+    action = { edit: true, delete: true },
+    message,
+    onDelete,
+    onEdit,
+    loading = false,
+    total,
+    onFilter,
+    initialState,
+    getRowHeight,
+  } = props;
   const [header, setHeader] = useState(columns);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [row, setRow] = useState<any>();
+  const [isFirst, setIsFirst] = useState(true);
+  const [param, setParam] = useState({
+    limit: 25,
+    page: 1,
+    order: "",
+    sortBy: "",
+  });
+
   const deleteClicked = (params: any) => {
-    console.log(params);
+    setRow(params);
+    setOpenDeleteModal(true);
   };
+
+  useEffect(() => {
+    if (!isFirst) {
+      onFilter(param);
+    } else {
+      setIsFirst(false);
+    }
+  }, [param]);
+
   useEffect(() => {
     if (action.delete || action.edit) {
       setHeader([
@@ -25,13 +54,19 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
         {
           field: "  ",
           headerName: "  ",
-          width: 150,
+          width: 80,
           sortable: false,
           renderCell(params) {
             return (
-              <div className="actions">
-                <Edit />
+              <div className={style.action}>
+                <Edit
+                  className="cursor-pointer"
+                  onClick={() => {
+                    onEdit(params.row);
+                  }}
+                />
                 <DeleteOutline
+                  className="cursor-pointer"
                   onClick={() => {
                     deleteClicked(params.row);
                   }}
@@ -45,15 +80,60 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
     }
   }, []);
   return (
-    <div className="grid-container">
+    <div className={style.grid_container}>
       <Box sx={sxBox}>
         <DataGrid
           disableColumnMenu
+          getRowHeight={getRowHeight && getRowHeight}
           rows={data}
           isRowSelectable={() => false}
           columns={header}
+          disableSelectionOnClick
+          disableColumnSelector
+          pageSize={param.limit}
+          rowsPerPageOptions={[25, 50, 100]}
+          rowCount={total}
+          page={param.page - 1}
+          loading={loading}
+          initialState={initialState}
+          onPageChange={(newPage) => {
+            setParam((state) => {
+              return { ...state, page: newPage + 1 };
+            });
+          }}
+          onPageSizeChange={(newPageSize) => {
+            setParam((state) => {
+              return {
+                ...state,
+                limit: newPageSize,
+                page: 1,
+              };
+            });
+          }}
+          paginationMode="server"
+          sortingMode="server"
+          onSortModelChange={(event) => {
+            setParam((state) => {
+              return {
+                ...state,
+                sortBy: event[0] && (event[0].field as string),
+                order: event[0] && (event[0].sort as string),
+              };
+            });
+          }}
         />
       </Box>
+      <ConfirmDialog
+        open={openDeleteModal}
+        handleClose={() => {
+          setOpenDeleteModal(false);
+        }}
+        handleSuccess={() => {
+          onDelete(row);
+          setOpenDeleteModal(false);
+        }}
+        message={message}
+      />
     </div>
   );
 };

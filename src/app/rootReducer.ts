@@ -6,6 +6,7 @@ import { persistReducer } from "redux-persist";
 const userConfig = {
   key: "user",
   storage,
+  blacklist: ["loading"],
 };
 
 const combinedReducer = combineReducers({

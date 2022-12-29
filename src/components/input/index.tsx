@@ -1,17 +1,8 @@
 import React from "react";
 import { FormHelperText, TextField, FormLabel } from "@mui/material";
-import "./index.scss";
-interface InputProp {
-  name: string;
-  errorText: string;
-  label: string;
-  placeholder?: string;
-  value: string;
-  type?: string;
-  className?: string;
-  onChange?: any;
-  number?: boolean;
-}
+import style from "./index.module.scss";
+import { InputProp } from "../../shared/utils/inteface";
+import { red } from "@mui/material/colors";
 const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
   const {
     name,
@@ -23,12 +14,22 @@ const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
     className,
     onChange,
     number = false,
+    row,
+    required,
   } = props;
   return (
     <div className={className}>
-      <FormLabel>{label}:</FormLabel>
+      <FormLabel className="d-flex">
+        {label}&nbsp;
+        {required && (
+          <div>
+            <div style={{ color: red["A400"] }}>*</div>
+          </div>
+        )}
+        :
+      </FormLabel>
       {errorText && (
-        <FormHelperText className="error" error={!!errorText}>
+        <FormHelperText className={style.error} error={!!errorText}>
           {errorText}
         </FormHelperText>
       )}
@@ -40,6 +41,8 @@ const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
         onChange={onChange}
         error={!!errorText}
         variant="outlined"
+        multiline={Boolean(row)}
+        rows={row}
         placeholder={placeholder && placeholder}
         value={value}
         onBlur={(e) => {

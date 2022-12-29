@@ -1,14 +1,8 @@
-.grid-container {
-  padding: 16px;
-
+.grid-grid_container {
   .actions {
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: center;
-
-    svg {
-      cursor: pointer;
-    }
   }
 }
