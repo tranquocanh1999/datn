@@ -75,11 +75,13 @@ const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
                 <div className={style.title}>Đáp án</div>
               </TableCell>
               <TableCell>
-                {data?.choice_answers.map((answer: string, index: number) => (
-                  <li key={index}>
-                    <MathEquation value={answer} />
-                  </li>
-                ))}
+                <ol type="A" style={{ padding: "0 16px" }}>
+                  {data?.choice_answers.map((answer: string, index: number) => (
+                    <li key={index}>
+                      <MathEquation value={answer} />
+                    </li>
+                  ))}
+                </ol>
               </TableCell>
             </TableRow>
             <TableRow>

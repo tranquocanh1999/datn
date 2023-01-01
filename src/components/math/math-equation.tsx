@@ -14,7 +14,11 @@ const MathEquation: React.FC<{ value: string }> = (props): JSX.Element => {
             if (index % 2 === 0) return string;
             else
               return (
-                <MathComponent display={false} tex={String.raw`${string}`} />
+                <MathComponent
+                  key={index}
+                  display={false}
+                  tex={String.raw`${string}`}
+                />
               );
           })
         );

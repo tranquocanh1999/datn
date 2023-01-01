@@ -1,21 +1,17 @@
 .form_content {
-  width: 400px;
+  width: 800px;
   padding: 0 16px;
+  display: flex;
 
-  .title {
-    width: 100px;
-    font-weight: 600;
-  }
-
-  .list {
-    margin: 0;
-    padding: 0 16px;
-  }
-
-  .table {
-    td {
-      padding: 0 16px;
+  .form,
+  .review {
+    .title {
+      width: 100px;
+      font-weight: 600;
     }
+
+    width: 400px;
+    height: 100%;
   }
 }
 

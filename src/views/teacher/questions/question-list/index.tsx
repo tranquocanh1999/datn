@@ -8,8 +8,8 @@ import {
   questionTypes,
   subjects,
 } from "../../../../contants/question";
-import ClassForm from "../../class/class-form";
 import QuestionDetail from "../question-detail";
+import QuestionForm from "../question-form";
 import style from "./question-list.module.scss";
 
 const QuestionList: React.FC = (): JSX.Element => {
@@ -72,7 +72,6 @@ const QuestionList: React.FC = (): JSX.Element => {
           <ol type="A">
             {params.row.choice_answers.map((answer: string, index: number) => (
               <li key={index}>
-                {" "}
                 <MathEquation value={answer} />
               </li>
             ))}
@@ -105,7 +104,7 @@ const QuestionList: React.FC = (): JSX.Element => {
       id: 1,
       code: "Q001",
       content:
-        "Động lực của dòng mạch rây là sự chệnh lệch áp suất thẩm thấu giữa  $\\frac{x+2}{y-1}$ dd",
+        "Động lực của dòng mạch rây là sự chệnh lệch áp suất thẩm thấu giữa  $\\frac{x+2}{y-1}+\\frac{x+2}{y-1}+\\frac{x+2}{y-1}+\\frac{x+2}{y-1}\\frac{x+2}{y-1}$ dd",
       type: 0,
       subject: 0,
       choice_answers: [
@@ -195,7 +194,7 @@ const QuestionList: React.FC = (): JSX.Element => {
         }}
         data={question}
       />
-      <ClassForm
+      <QuestionForm
         open={isOpenForm}
         isEdit={isEdit}
         handleClose={() => {

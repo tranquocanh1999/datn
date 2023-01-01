@@ -12,13 +12,15 @@ export interface InputProp {
   errorText: string;
   label: string;
   placeholder?: string;
-  value: string;
+  value: string | number | string[] | number[];
   type?: string;
   className?: string;
   onChange?: any;
   number?: boolean;
   row?: number;
   required?: boolean;
+  data?: any;
+  isEdit?: boolean;
 }
 
 export interface GridProp {
