@@ -1,10 +1,16 @@
 import { GridColDef } from "@mui/x-data-grid";
 
-export interface ConfirmDialogProps {
+export interface DeleteDialogProps {
   open: boolean;
   message: string;
   handleClose: any;
   handleSuccess: any;
+}
+
+export interface ClassDetailProps {
+  open: boolean;
+  classes: any;
+  handleClose: any;
 }
 
 export interface InputProp {

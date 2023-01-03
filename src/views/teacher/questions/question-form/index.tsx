@@ -7,13 +7,14 @@ import {
   DialogTitle,
   ToggleButton,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProps } from "../../../../shared/utils/inteface";
 import { Transition } from "../../../../shared/utils/transition";
 import style from "./question-form.module.scss";
 import { Close } from "@mui/icons-material";
 import {
   answers,
+  levels,
   questionTypes,
   subjects,
 } from "../../../../contants/question";
@@ -28,9 +29,10 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
   const { open, data, handleClose, isEdit } = props;
   const init = {
     content: "",
-    type: 0,
+    type: 1,
     subject: 0,
-    choice_answers: [],
+    level: 0,
+    choice_answers: [""],
     correct_answers: [],
     note: "",
   };
@@ -49,8 +51,15 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
       } else {
         formik.setValues(init);
       }
+    } else {
+      formik.setValues(init);
     }
   }, [open]);
+
+  const handleChangeAnswer = (e: any) => {
+    formik.setFieldValue("choice_answers", e.choice_answers);
+    formik.setFieldValue("correct_answers", e.correct_answers);
+  };
 
   return (
     <Dialog
@@ -108,18 +117,35 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
             onChange={formik.handleChange}
             data={subjects}
             errorText={(formik.touched.subject && formik.errors.subject) || ""}
-          />
+          />{" "}
           <br />
-          <QuestionAnswer
-            name="answer"
-            label="đáp án"
-            value={formik.values.correct_answers}
+          <SelectInput
+            name="level"
+            label="Độ khó"
+            value={formik.values.level}
             onChange={formik.handleChange}
-            data={formik.values.choice_answers}
-            errorText={(formik.touched.subject && formik.errors.subject) || ""}
-            isEdit={true}
+            data={levels}
+            errorText={(formik.touched.level && formik.errors.level) || ""}
           />
           <br />
+          {((formik.values.choice_answers.length > 1 && isEdit) || !isEdit) &&
+            !formik.values.type &&
+            open && (
+              <>
+                <QuestionAnswer
+                  name="answer"
+                  label="Đáp án"
+                  value={formik.values.correct_answers}
+                  onChange={handleChangeAnswer}
+                  data={formik.values.choice_answers}
+                  errorText={
+                    (formik.touched.subject && formik.errors.subject) || ""
+                  }
+                  isEdit={true}
+                />
+                <br />
+              </>
+            )}
           <FieldInput
             name="note"
             label="Lời giải"
@@ -134,18 +160,25 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
         <div className={style.review}>
           <h4 className="text-center">Xem trước:</h4>
           <div className={style.title}>Đề bài:</div>
-          <MathEquation value={formik.values.content} />
-          <ol type="A" style={{ padding: "0 16px" }}>
-            {data?.choice_answers.map((answer: string, index: number) => (
-              <li key={index}>
-                <MathEquation value={answer} />
-              </li>
-            ))}
-          </ol>
-          <div className={style.title}>Đáp án:</div>
-          {data?.correct_answers
-            .map((answer: number) => answers[answer])
-            .join(",")}
+          {open ? <MathEquation value={formik.values.content} /> : ""}
+
+          {!formik.values.type && (
+            <>
+              <ol type="A" style={{ padding: "0 16px" }}>
+                {formik.values?.choice_answers.map(
+                  (answer: string, index: number) => (
+                    <li key={index}>
+                      {open ? <MathEquation value={answer} /> : ""}
+                    </li>
+                  )
+                )}
+              </ol>
+              <div className={style.title}>Đáp án:</div>
+              {formik.values?.correct_answers
+                .map((answer: number) => answers[answer])
+                .join(",")}{" "}
+            </>
+          )}
           <div className={style.title}>Lời giải:</div>
           {formik.values.note}
         </div>

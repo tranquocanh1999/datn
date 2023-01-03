@@ -22,8 +22,10 @@ export const TeacherLayout: React.FC = (): JSX.Element => {
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
   const menu = [
-    { url: "/class", title: "Quản lý lớp học" },
+    { url: "/class", title: "Danh sách lớp học" },
     { url: "/questions", title: "Ngân hàng câu hỏi" },
+    { url: "/students", title: "Danh sách học sinh" },
+    { url: "/users", title: "Danh sách nhân viên" },
   ];
   const menuBar = menu.map((link, index) => (
     <ToggleButton

@@ -6,7 +6,7 @@ import style from "./index.module.scss";
 import { Edit, DeleteOutline } from "@mui/icons-material";
 import { red } from "@mui/material/colors";
 import { GridProp } from "../../shared/utils/inteface";
-import ConfirmDialog from "../confirm";
+import DeleteDialog from "../confirm";
 
 const Grid: React.FC<GridProp> = (props): JSX.Element => {
   const {
@@ -123,7 +123,7 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
           }}
         />
       </Box>
-      <ConfirmDialog
+      <DeleteDialog
         open={openDeleteModal}
         handleClose={() => {
           setOpenDeleteModal(false);

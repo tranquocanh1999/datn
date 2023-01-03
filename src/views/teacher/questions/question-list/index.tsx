@@ -5,6 +5,7 @@ import Grid from "../../../../components/grid";
 import MathEquation from "../../../../components/math/math-equation";
 import {
   answers,
+  levels,
   questionTypes,
   subjects,
 } from "../../../../contants/question";
@@ -42,6 +43,13 @@ const QuestionList: React.FC = (): JSX.Element => {
       width: 120,
       valueGetter: (params: GridValueGetterParams) =>
         `${questionTypes[params.row.type] || ""} `,
+    },
+    {
+      field: "level",
+      headerName: "Độ khó",
+      width: 120,
+      valueGetter: (params: GridValueGetterParams) =>
+        `${levels[params.row.type] || ""} `,
     },
     {
       field: "subject",
@@ -107,6 +115,7 @@ const QuestionList: React.FC = (): JSX.Element => {
         "Động lực của dòng mạch rây là sự chệnh lệch áp suất thẩm thấu giữa  $\\frac{x+2}{y-1}+\\frac{x+2}{y-1}+\\frac{x+2}{y-1}+\\frac{x+2}{y-1}\\frac{x+2}{y-1}$ dd",
       type: 0,
       subject: 0,
+      level: 0,
       choice_answers: [
         "cành và lá  $\\frac{x+2}{y-1}$ dd",
         "cành và lá",
@@ -123,6 +132,7 @@ const QuestionList: React.FC = (): JSX.Element => {
         "Động lực của dòng mạch rây là sự chệnh lệch áp suất thẩm thấu giữa",
       type: 1,
       subject: 1,
+      level: 1,
       choice_answers: ["lá và rễ", "cành và lá", "rễ và thân", "thân và lá"],
       correct_answers: [0],
       note: "test",
@@ -156,7 +166,7 @@ const QuestionList: React.FC = (): JSX.Element => {
         getRowHeight={() => "auto"}
         columns={columns}
         data={data}
-        sxBox={{ height: "calc(100vh - 175px)", width: "100%" }}
+        sxBox={{ height: "calc(100vh - 176px)", width: "100%" }}
         action={{ edit: true, delete: true }}
         message="Bạn có muốn xóa lớp học này?"
         onDelete={(e: any) => {
@@ -199,6 +209,14 @@ const QuestionList: React.FC = (): JSX.Element => {
         isEdit={isEdit}
         handleClose={() => {
           setIsEdit(false);
+          setQuestion({
+            content: "",
+            type: 0,
+            subject: 0,
+            choice_answers: [],
+            correct_answers: [],
+            note: "",
+          });
           setIsOpenForm(false);
         }}
         data={question}

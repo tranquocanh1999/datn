@@ -9,6 +9,8 @@ import QuestionList from "../views/teacher/questions/question-list";
 import { role } from "../contants/role";
 import { TeacherLayout } from "../layouts/teacher-layout";
 import NotFound from "../views/common/not-found";
+import StudentList from "../views/teacher/student/student-list";
+import UserList from "../views/teacher/user/user-list";
 
 const TeacherRoutes: React.FC = (): JSX.Element => {
   return (
@@ -31,6 +33,26 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
             <PrivateRoute
               path="/questions"
               Component={QuestionList}
+              requiredRoles={[role.TEACHER]}
+            />
+          }
+        />
+        <Route
+          path="/students"
+          element={
+            <PrivateRoute
+              path="/students"
+              Component={StudentList}
+              requiredRoles={[role.TEACHER]}
+            />
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <PrivateRoute
+              path="/users"
+              Component={UserList}
               requiredRoles={[role.TEACHER]}
             />
           }

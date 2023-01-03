@@ -12,6 +12,11 @@ const columns = [
     width: 150,
   },
   {
+    field: "teacher_name",
+    headerName: "Giáo viên",
+    width: 150,
+  },
+  {
     field: "numberOfStudent",
     headerName: "Số học sinh",
     type: "number",
@@ -21,7 +26,6 @@ const columns = [
     field: "description",
     headerName: "Mô tả",
     width: 110,
-
     minWidth: 160,
     flex: 1,
   },
@@ -35,6 +39,7 @@ const ClassList: React.FC = (): JSX.Element => {
       id: 1,
       code: "CL001",
       name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
       numberOfStudent: 35,
       description: "đây là mô tả",
     },
@@ -42,6 +47,7 @@ const ClassList: React.FC = (): JSX.Element => {
       id: 2,
       code: "CL001",
       name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
       numberOfStudent: 35,
       description: "đây là mô tả",
     },
@@ -49,6 +55,7 @@ const ClassList: React.FC = (): JSX.Element => {
       id: 3,
       code: "CL001",
       name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
       numberOfStudent: 35,
       description: "đây là mô tả",
     },
@@ -56,6 +63,7 @@ const ClassList: React.FC = (): JSX.Element => {
       id: 4,
       code: "CL001",
       name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
       numberOfStudent: 35,
       description: "đây là mô tả",
     },
@@ -87,7 +95,7 @@ const ClassList: React.FC = (): JSX.Element => {
       <Grid
         columns={columns}
         data={data}
-        sxBox={{ height: "calc(100vh - 175px)", width: "100%" }}
+        sxBox={{ height: "calc(100vh - 176px)", width: "100%" }}
         action={{ edit: true, delete: true }}
         message="Bạn có muốn xóa lớp học này?"
         onDelete={(e: any) => {

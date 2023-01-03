@@ -1,9 +1,9 @@
 import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
 import React from "react";
-import { ConfirmDialogProps } from "../../shared/utils/inteface";
+import { DeleteDialogProps } from "../../shared/utils/inteface";
 import { Transition } from "../../shared/utils/transition";
 
-const ConfirmDialog: React.FC<ConfirmDialogProps> = (props): JSX.Element => {
+const DeleteDialog: React.FC<DeleteDialogProps> = (props): JSX.Element => {
   const { open, message, handleClose, handleSuccess } = props;
   return (
     <Dialog
@@ -26,6 +26,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = (props): JSX.Element => {
   );
 };
 
-export default React.memo(ConfirmDialog, (pre, next) => {
+export default React.memo(DeleteDialog, (pre, next) => {
   return pre.open === next.open;
 });

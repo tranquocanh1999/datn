@@ -18,6 +18,7 @@ import style from "./question-detail.module.scss";
 import { Close } from "@mui/icons-material";
 import {
   answers,
+  levels,
   questionTypes,
   subjects,
 } from "../../../../contants/question";
@@ -61,6 +62,12 @@ const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
                 <div className={style.title}>Môn học</div>
               </TableCell>
               <TableCell> {subjects[data?.subject]}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
+                <div className={style.title}>Độ khó</div>
+              </TableCell>
+              <TableCell> {levels[data?.level]}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
