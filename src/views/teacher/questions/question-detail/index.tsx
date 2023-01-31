@@ -21,7 +21,7 @@ import {
   levels,
   questionTypes,
   subjects,
-} from "../../../../contants/question";
+} from "../../../../shared/contants/question";
 import MathEquation from "../../../../components/math/math-equation";
 const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
   const { open, data, handleClose } = props;

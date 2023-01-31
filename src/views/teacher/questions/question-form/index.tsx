@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
   ToggleButton,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -17,7 +18,7 @@ import {
   levels,
   questionTypes,
   subjects,
-} from "../../../../contants/question";
+} from "../../../../shared/contants/question";
 import MathEquation from "../../../../components/math/math-equation";
 import { grey } from "@mui/material/colors";
 import { useFormik } from "formik";
@@ -106,18 +107,28 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
             label="Loại câu hỏi"
             value={formik.values.type}
             onChange={formik.handleChange}
-            data={questionTypes}
             errorText={(formik.touched.type && formik.errors.type) || ""}
-          />
+          >
+            {questionTypes.map((text: string, index: number) => (
+              <MenuItem key={index} value={index}>
+                {text}
+              </MenuItem>
+            ))}
+          </SelectInput>
           <br />
           <SelectInput
             name="subject"
             label="Môn học"
             value={formik.values.subject}
             onChange={formik.handleChange}
-            data={subjects}
             errorText={(formik.touched.subject && formik.errors.subject) || ""}
-          />{" "}
+          >
+            {subjects.map((text: string, index: number) => (
+              <MenuItem key={index} value={index}>
+                {text}
+              </MenuItem>
+            ))}
+          </SelectInput>
           <br />
           <SelectInput
             name="level"
@@ -126,7 +137,13 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
             onChange={formik.handleChange}
             data={levels}
             errorText={(formik.touched.level && formik.errors.level) || ""}
-          />
+          >
+            {subjects.map((text: string, index: number) => (
+              <MenuItem key={index} value={index}>
+                {text}
+              </MenuItem>
+            ))}
+          </SelectInput>
           <br />
           {((formik.values.choice_answers.length > 1 && isEdit) || !isEdit) &&
             !formik.values.type &&

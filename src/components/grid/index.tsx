@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Box } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridOverlay } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import style from "./index.module.scss";
 import { Edit, DeleteOutline } from "@mui/icons-material";
-import { red } from "@mui/material/colors";
+import { red, grey } from "@mui/material/colors";
 import { GridProp } from "../../shared/utils/inteface";
 import DeleteDialog from "../confirm";
 
@@ -22,6 +22,7 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
     onFilter,
     initialState,
     getRowHeight,
+    isDisableDelete,
   } = props;
   const [header, setHeader] = useState(columns);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -59,19 +60,29 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
           renderCell(params) {
             return (
               <div className={style.action}>
-                <Edit
-                  className="cursor-pointer"
-                  onClick={() => {
-                    onEdit(params.row);
-                  }}
-                />
-                <DeleteOutline
-                  className="cursor-pointer"
-                  onClick={() => {
-                    deleteClicked(params.row);
-                  }}
-                  sx={{ color: red["A400"] }}
-                />
+                {action.edit && (
+                  <Edit
+                    className="cursor-pointer"
+                    onClick={() => {
+                      onEdit(params.row);
+                    }}
+                  />
+                )}
+                {action.delete && (
+                  <DeleteOutline
+                    className="cursor-pointer"
+                    onClick={() => {
+                      if (isDisableDelete && isDisableDelete(params.row))
+                        return;
+                      deleteClicked(params.row);
+                    }}
+                    sx={
+                      isDisableDelete && isDisableDelete(params.row)
+                        ? { color: grey["A400"] }
+                        : { color: red["A400"] }
+                    }
+                  />
+                )}
               </div>
             );
           },
@@ -79,6 +90,14 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
       ]);
     }
   }, []);
+
+  function NoRowsOverlay() {
+    return (
+      <GridOverlay>
+        <div>Không có data</div>
+      </GridOverlay>
+    );
+  }
   return (
     <div className={style.grid_container}>
       <Box sx={sxBox}>
@@ -94,6 +113,9 @@ const Grid: React.FC<GridProp> = (props): JSX.Element => {
           rowsPerPageOptions={[25, 50, 100]}
           rowCount={total}
           page={param.page - 1}
+          components={{
+            NoRowsOverlay: NoRowsOverlay,
+          }}
           loading={loading}
           initialState={initialState}
           onPageChange={(newPage) => {

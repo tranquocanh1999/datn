@@ -1,5 +1,7 @@
 .container {
   display: flex;
+  min-width: 1536px;
+  overflow: auto;
 
   .sidebar {
     width: 250px;

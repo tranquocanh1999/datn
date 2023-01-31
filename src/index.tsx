@@ -7,6 +7,8 @@ import reportWebVitals from "./reportWebVitals";
 import "./index.scss";
 import { BrowserRouter } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 
 const container = document.getElementById("root")!;
 const root = createRoot(container);
@@ -14,9 +16,11 @@ const root = createRoot(container);
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </LocalizationProvider>
     </PersistGate>
   </Provider>
 );

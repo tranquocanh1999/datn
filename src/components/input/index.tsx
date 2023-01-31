@@ -19,20 +19,24 @@ const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
   } = props;
   return (
     <div className={className}>
-      <FormLabel className="d-flex">
-        {label}&nbsp;
-        {required && (
-          <div>
-            <div style={{ color: red["A400"] }}>*</div>
-          </div>
+      <div className="d-flex">
+        {label && (
+          <FormLabel className="d-flex mr-auto">
+            {label}&nbsp;
+            {required && (
+              <div>
+                <div style={{ color: red["A400"] }}>*</div>
+              </div>
+            )}
+            :
+          </FormLabel>
         )}
-        :
-      </FormLabel>
-      {errorText && (
-        <FormHelperText className={style.error} error={!!errorText}>
-          {errorText}
-        </FormHelperText>
-      )}
+        {errorText && (
+          <FormHelperText className={style.error} error={!!errorText}>
+            {errorText}
+          </FormHelperText>
+        )}
+      </div>
       <TextField
         fullWidth
         size="small"
@@ -44,7 +48,7 @@ const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
         multiline={Boolean(row)}
         rows={row}
         placeholder={placeholder && placeholder}
-        value={value}
+        value={value ?? ""}
         onBlur={(e) => {
           e.target.value = e.target.value.trim();
           if (number) {

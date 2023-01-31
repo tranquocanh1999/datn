@@ -27,6 +27,8 @@ export interface InputProp {
   required?: boolean;
   data?: any;
   isEdit?: boolean;
+  children?: any;
+  multiple?: boolean;
 }
 
 export interface GridProp {
@@ -42,6 +44,7 @@ export interface GridProp {
   onFilter?: any;
   initialState: any;
   getRowHeight?: any;
+  isDisableDelete?: (e: any) => boolean;
 }
 
 export interface FormProps {
@@ -49,4 +52,11 @@ export interface FormProps {
   data?: any;
   isEdit?: boolean;
   handleClose: any;
+}
+
+export interface filter {
+  page: number;
+  perPage: number;
+  filters?: any;
+  sort?: any;
 }

@@ -1,4 +1,11 @@
-import { Button, TextField, Link } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Link,
+  MenuItem,
+  Select,
+  FormLabel,
+} from "@mui/material";
 import { GridValueGetterParams } from "@mui/x-data-grid";
 import React, { useState } from "react";
 import Grid from "../../../../components/grid";
@@ -8,7 +15,7 @@ import {
   levels,
   questionTypes,
   subjects,
-} from "../../../../contants/question";
+} from "../../../../shared/contants/question";
 import QuestionDetail from "../question-detail";
 import QuestionForm from "../question-form";
 import style from "./question-list.module.scss";
@@ -141,23 +148,70 @@ const QuestionList: React.FC = (): JSX.Element => {
   return (
     <div>
       <div className={style.filter}>
-        <TextField
-          placeholder="Mã lớp học"
-          value=""
-          onChange={(event) => {}}
-          size="small"
-        />
-        <TextField
-          placeholder="Tên lớp học"
-          value=""
-          onChange={(event) => {}}
-          sx={{ height: "33px", marginLeft: "16px" }}
-          size="small"
-        />
+        <div>
+          <FormLabel className="d-flex">Mã lớp học:</FormLabel>
+          <TextField
+            placeholder="Mã lớp học"
+            value=""
+            onChange={(event) => {}}
+            sx={{ height: "33px", width: "200px" }}
+            size="small"
+          />
+        </div>
+        <div>
+          <FormLabel className="d-flex">Tên lớp học:</FormLabel>
+          <TextField
+            placeholder="Tên lớp học"
+            value=""
+            onChange={(event) => {}}
+            sx={{ height: "33px", width: "200px" }}
+            size="small"
+          />{" "}
+        </div>
+        <div>
+          <FormLabel className="d-flex">Môn học:</FormLabel>
+          <Select
+            value={1}
+            size="small"
+            name="subject"
+            id="subject"
+            sx={{ height: "33px", width: "200px" }}
+            onChange={() => {}}
+          >
+            <MenuItem key={0} value={0}>
+              --
+            </MenuItem>
+            {subjects.map((text: string, index: number) => (
+              <MenuItem key={index} value={index}>
+                {text}
+              </MenuItem>
+            ))}
+          </Select>{" "}
+        </div>
+        <div>
+          <FormLabel className="d-flex">Độ khó:</FormLabel>
+          <Select
+            value={1}
+            size="small"
+            name="level"
+            id="level"
+            sx={{ height: "33px", width: "200px" }}
+            onChange={() => {}}
+          >
+            <MenuItem key={0} value={0}>
+              --
+            </MenuItem>
+            {levels.map((text: string, index: number) => (
+              <MenuItem key={index} value={index}>
+                {text}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
         <Button
           onClick={() => {}}
           variant="outlined"
-          sx={{ height: "33px", marginLeft: "auto" }}
+          sx={{ height: "33px", marginLeft: "auto", marginTop: "auto" }}
         >
           Tìm kiếm
         </Button>
@@ -166,7 +220,7 @@ const QuestionList: React.FC = (): JSX.Element => {
         getRowHeight={() => "auto"}
         columns={columns}
         data={data}
-        sxBox={{ height: "calc(100vh - 176px)", width: "100%" }}
+        sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
         action={{ edit: true, delete: true }}
         message="Bạn có muốn xóa lớp học này?"
         onDelete={(e: any) => {
@@ -187,6 +241,7 @@ const QuestionList: React.FC = (): JSX.Element => {
         }}
         total={10000}
       />
+
       <Button
         sx={{ marginTop: "16px" }}
         onClick={() => {
@@ -197,6 +252,7 @@ const QuestionList: React.FC = (): JSX.Element => {
       >
         Thêm mới
       </Button>
+
       <QuestionDetail
         open={isOpenFormDetail}
         handleClose={() => {

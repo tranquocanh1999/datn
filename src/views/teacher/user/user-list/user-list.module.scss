@@ -2,13 +2,16 @@
   display: flex;
   margin-bottom: 16px;
 
+  & > div {
+    margin-right: 16px;
+  }
+
   input {
     margin-right: 16px;
     width: 200px;
     height: 16px;
   }
 }
-
 .class_info {
   display: flex;
   width: 100%;

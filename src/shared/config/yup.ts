@@ -19,6 +19,7 @@ yup.setLocale({
   string: {
     min: ({ min, label }) => `${label} phải nhập tối thiểu ${min} kí tự`,
     max: ({ max, label }) => `${label} không được nhập quá ${max} kí tự`,
+    email: "Email không đúng định dạng",
   },
   // use functions to generate an error object that includes the value from the schema
   number: {

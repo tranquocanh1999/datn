@@ -33,20 +33,24 @@ const ClassDetailModal: React.FC<ClassDetailProps> = (props): JSX.Element => {
         </ToggleButton>
       </DialogTitle>
       <DialogContent className={style.form_content}>
-        {classes &&
-          classes.map((item: any) => (
-            <TableRow>
-              <TableCell sx={{ border: 1, borderColor: "grey.300" }}>
-                {item.code}
-              </TableCell>
-              <TableCell
-                width={400}
-                sx={{ border: 1, borderColor: "grey.300" }}
-              >
-                {item.name}
-              </TableCell>
-            </TableRow>
-          ))}
+        <table className={style.table}>
+          <tbody>
+            {classes &&
+              classes.map((item: any, index: number) => (
+                <TableRow key={index}>
+                  <TableCell sx={{ border: 1, borderColor: "grey.300" }}>
+                    {item.classCode}
+                  </TableCell>
+                  <TableCell
+                    width={400}
+                    sx={{ border: 1, borderColor: "grey.300" }}
+                  >
+                    {item.className}
+                  </TableCell>
+                </TableRow>
+              ))}
+          </tbody>
+        </table>
       </DialogContent>
     </Dialog>
   );

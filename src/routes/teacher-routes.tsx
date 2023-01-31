@@ -6,11 +6,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "./private-route";
 import ClassList from "../views/teacher/class/class-list";
 import QuestionList from "../views/teacher/questions/question-list";
-import { role } from "../contants/role";
+import { role } from "../shared/contants/role";
 import { TeacherLayout } from "../layouts/teacher-layout";
 import NotFound from "../views/common/not-found";
 import StudentList from "../views/teacher/student/student-list";
 import UserList from "../views/teacher/user/user-list";
+import ExamList from "../views/teacher/exam/exam-list";
 
 const TeacherRoutes: React.FC = (): JSX.Element => {
   return (
@@ -53,6 +54,16 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
             <PrivateRoute
               path="/users"
               Component={UserList}
+              requiredRoles={[role.TEACHER]}
+            />
+          }
+        />{" "}
+        <Route
+          path="/exams"
+          element={
+            <PrivateRoute
+              path="/exams"
+              Component={ExamList}
               requiredRoles={[role.TEACHER]}
             />
           }

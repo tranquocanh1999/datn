@@ -1,20 +1,19 @@
-import { Button, TextField } from "@mui/material";
+import { Button, FormLabel, MenuItem, Select, TextField } from "@mui/material";
 import React, { useState } from "react";
 import Grid from "../../../../components/grid";
-import { MoreHoriz } from "@mui/icons-material";
-import QuestionDetail from "../../questions/question-detail";
-import QuestionForm from "../../questions/question-form";
 import style from "./user-list.module.scss";
 import ClassDetailModal from "../../../../components/class-detail-modal";
-import { roles } from "../../../../contants/role";
+import { roles } from "../../../../shared/contants/role";
 import { GridValueGetterParams } from "@mui/x-data-grid";
+import UserForm from "../user-form";
+import { MoreHoriz } from "@mui/icons-material";
+import { genders } from "../../../../shared/contants/user";
 
 const UserList: React.FC = (): JSX.Element => {
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isOpenClassDetail, setIsOpenClassDetail] = useState(false);
-  const [isOpenFormDetail, setIsOpenFormDetail] = useState(false);
-  const [student, setStudent] = useState<any>();
+  const [user, setUser] = useState<any>();
   const columns = [
     {
       field: "code",
@@ -22,7 +21,7 @@ const UserList: React.FC = (): JSX.Element => {
       width: 120,
     },
     {
-      field: "name",
+      field: "fullName",
       headerName: "Tên nhân viên",
       width: 200,
     },
@@ -30,6 +29,14 @@ const UserList: React.FC = (): JSX.Element => {
       field: "birthday",
       headerName: "Ngày sinh",
       width: 100,
+    },
+    {
+      field: "gender",
+      headerName: "Giới tính",
+      width: 100,
+      valueGetter: (params: GridValueGetterParams) => {
+        return genders[params.row.gender];
+      },
     },
 
     {
@@ -44,6 +51,23 @@ const UserList: React.FC = (): JSX.Element => {
       width: 150,
     },
     {
+      field: "subjects",
+      headerName: "Môn giảng dạy",
+      width: 150,
+      minWidth: 150,
+      sortable: false,
+      flex: 1,
+      renderCell(params: any) {
+        return (
+          <ul style={{ padding: "0 16px" }}>
+            {params.row.subjects.map((subject: any, index: number) => (
+              <li key={index}>{subject.name}</li>
+            ))}
+          </ul>
+        );
+      },
+    },
+    {
       field: "role",
       headerName: "Chức vụ",
       width: 100,
@@ -52,7 +76,7 @@ const UserList: React.FC = (): JSX.Element => {
     {
       field: "classes",
       headerName: "Lớp học",
-      width: 250,
+      width: 200,
       sortable: false,
       renderCell(params: any) {
         return (
@@ -61,7 +85,7 @@ const UserList: React.FC = (): JSX.Element => {
             <div className="ml-auto cursor-pointer">
               <MoreHoriz
                 onClick={() => {
-                  setStudent(params.row);
+                  setUser(params.row);
                   setIsOpenClassDetail(true);
                 }}
               />
@@ -75,50 +99,123 @@ const UserList: React.FC = (): JSX.Element => {
     {
       id: 1,
       code: "ST001",
-      name: "Trần Quốc Anh",
+      fullName: "Trần Quốc Anh",
+      username: "Trần Quốc Anh",
       birthday: "17-02-1995",
+      gender: 1,
+      subjects: [
+        { id: 1, name: "Toán" },
+        { id: 2, name: "Sinh học" },
+      ],
       email: "test@gmail.com",
       phone: "0367894562",
-      role: 1,
       classes: [
         { id: 1, code: "ABC", name: "Lớp thầy Huấn 1" },
         { id: 2, code: "ABC", name: "Lớp thầy Huấn 2" },
         { id: 3, code: "ABC", name: "Lớp thầy Huấn 3" },
         { id: 4, code: "ABC", name: "Lớp thầy Huấn 4" },
       ],
+      role: 1,
     },
     {
       id: 2,
       code: "ST001",
-      name: "Trần Quốc B",
+      fullName: "Trần Quốc B",
+      username: "Trần Quốc Anh",
       birthday: "17-02-1995",
+      gender: 0,
+      subjects: [
+        { id: 0, name: "Toán" },
+        { id: 1, name: "Sinh học" },
+      ],
       email: "test2@gmail.com",
       phone: "0367894562",
-      role: 0,
       classes: [
-        { id: 1, name: "Lớp thầy Huấn 1" },
-        { id: 2, name: "Lớp thầy Huấn 2" },
-        { id: 3, name: "Lớp thầy Huấn 3" },
-        { id: 4, name: "Lớp thầy Huấn 4" },
+        { id: 1, code: "ABC", name: "Lớp thầy Huấn 1" },
+        { id: 2, code: "ABC", name: "Lớp thầy Huấn 2" },
+        { id: 3, code: "ABC", name: "Lớp thầy Huấn 3" },
+        { id: 4, code: "ABC", name: "Lớp thầy Huấn 4" },
       ],
+      role: 0,
+    },
+  ];
+  const classes = [
+    {
+      id: 1,
+      code: "CL001",
+      name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
+      numberOfStudent: 35,
+      description: "đây là mô tả",
+    },
+    {
+      id: 2,
+      code: "CL001",
+      name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
+      numberOfStudent: 35,
+      description: "đây là mô tả",
+    },
+    {
+      id: 3,
+      code: "CL001",
+      name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
+      numberOfStudent: 35,
+      description: "đây là mô tả",
+    },
+    {
+      id: 4,
+      code: "CL001",
+      name: "Lớp thầy tuấn",
+      teacher_name: "Huấn hoa hồng",
+      numberOfStudent: 35,
+      description: "đây là mô tả",
     },
   ];
   return (
     <div>
       <div className={style.filter}>
-        <TextField
-          placeholder="Mã học sinh"
-          value=""
-          onChange={(event) => {}}
-          size="small"
-        />
-        <TextField
-          placeholder="Tên học sinh"
-          value=""
-          onChange={(event) => {}}
-          sx={{ height: "33px", marginLeft: "16px" }}
-          size="small"
-        />
+        <div>
+          <FormLabel className="d-flex">Mã nhân viên:</FormLabel>
+          <TextField
+            placeholder="Mã nhân viên"
+            value=""
+            onChange={(event) => {}}
+            sx={{ height: "33px", width: "200px" }}
+            size="small"
+          />
+        </div>
+        <div>
+          <FormLabel className="d-flex">Tên nhân viên:</FormLabel>
+          <TextField
+            placeholder="Tên nhân viên"
+            value=""
+            onChange={(event) => {}}
+            sx={{ height: "33px", width: "200px" }}
+            size="small"
+          />
+        </div>
+        <div>
+          <FormLabel className="d-flex">Lớp học:</FormLabel>
+          <Select
+            value={0}
+            size="small"
+            name="level"
+            id="level"
+            sx={{ height: "33px", width: "200px" }}
+            onChange={() => {}}
+          >
+            <MenuItem key={0} value={0}>
+              --
+            </MenuItem>{" "}
+            {classes.map((i) => (
+              <MenuItem key={i.id} value={i.id}>
+                {i.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
         <Button
           onClick={() => {}}
           variant="outlined"
@@ -128,9 +225,13 @@ const UserList: React.FC = (): JSX.Element => {
         </Button>
       </div>
       <Grid
+        getRowHeight={(a: any) => {
+          if (a.model.subjects.length > 2) return "auto";
+          return 52;
+        }}
         columns={columns}
         data={data}
-        sxBox={{ height: "calc(100vh - 176px)", width: "100%" }}
+        sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
         action={{ edit: true, delete: true }}
         message="Bạn có muốn xóa lớp học này?"
         onDelete={(e: any) => {
@@ -143,7 +244,7 @@ const UserList: React.FC = (): JSX.Element => {
         }}
         onEdit={(e: any) => {
           setIsEdit(true);
-          setStudent(e);
+          setUser(e);
           setIsOpenForm(true);
         }}
         onFilter={(e: any) => {
@@ -166,31 +267,16 @@ const UserList: React.FC = (): JSX.Element => {
         handleClose={() => {
           setIsOpenClassDetail(false);
         }}
-        classes={student?.classes}
+        classes={user?.classes}
       />
-      <QuestionDetail
-        open={isOpenFormDetail}
-        handleClose={() => {
-          setIsOpenFormDetail(false);
-        }}
-        data={student}
-      />
-      <QuestionForm
+      <UserForm
         open={isOpenForm}
         isEdit={isEdit}
         handleClose={() => {
           setIsEdit(false);
-          setStudent({
-            content: "",
-            type: 0,
-            subject: 0,
-            choice_answers: [],
-            correct_answers: [],
-            note: "",
-          });
           setIsOpenForm(false);
         }}
-        data={student}
+        data={user}
       />
     </div>
   );

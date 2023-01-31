@@ -15,28 +15,83 @@ import FieldInput from "../../../../components/input";
 import { classFormSchema } from "../../../../shared/schema/class-schema";
 import style from "./class-form.module.scss";
 import { Close } from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createClass,
+  editClass,
+  getClass,
+} from "../../../../features/classSlice";
+import { RootState } from "../../../../app/rootReducer";
+import { setToast } from "../../../../features/userSlice";
+import { typeToast } from "../../../../shared/contants/toast";
 const ClassForm: React.FC<FormProps> = (props): JSX.Element => {
-  const { open, isEdit, data, handleClose } = props;
+  const { open = false, isEdit, data, handleClose } = props;
+  const success = useSelector((state: RootState) => state?.class?.isSuccess);
+  const dataClass = useSelector((state: RootState) => state?.class?.class);
+
+  const dispatch = useDispatch();
   const init = {
-    name: "",
+    className: "",
     description: "",
   };
+  const toast = useSelector((state: RootState) => state?.user?.toast);
+
   const formik = useFormik({
     initialValues: init,
     validationSchema: classFormSchema,
-    onSubmit: (values) => {},
+    onSubmit: (values) => {
+      isEdit
+        ? dispatch<any>(
+            editClass({
+              ...values,
+              id: data.id,
+            })
+          )
+        : dispatch<any>(
+            createClass({
+              ...values,
+            })
+          );
+    },
   });
+
+  useEffect(() => {
+    if (success) {
+      dispatch(
+        setToast({
+          message: isEdit
+            ? "Chỉnh sửa lớp học thành công."
+            : "Thêm mới lớp học thành công.",
+          type: typeToast.SUCCESS,
+        })
+      );
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (toast.message) {
+      handleClose();
+    }
+  }, [toast]);
 
   useEffect(() => {
     formik.resetForm();
     if (open) {
       if (isEdit) {
-        formik.setValues(data);
+        dispatch<any>(getClass(data.id));
       } else {
         formik.setValues(init);
       }
+    } else {
+      formik.setValues(init);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (dataClass) {
+      formik.setValues(dataClass);
+    }
+  }, [dataClass]);
 
   return (
     <Dialog
@@ -58,13 +113,15 @@ const ClassForm: React.FC<FormProps> = (props): JSX.Element => {
       </DialogTitle>
       <DialogContent className={style.form_content}>
         <FieldInput
-          name="name"
+          name="className"
           label="Tên lớp học"
           placeholder="Tên lớp học"
-          value={formik.values.name}
+          value={formik.values.className}
           onChange={formik.handleChange}
-          errorText={(formik.touched.name && formik.errors.name) || ""}
-          className="name"
+          errorText={
+            (formik.touched.className && formik.errors.className) || ""
+          }
+          className="className"
           required
         />
         <br />

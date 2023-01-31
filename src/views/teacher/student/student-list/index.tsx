@@ -1,42 +1,59 @@
-import { Button, TextField } from "@mui/material";
-import React, { useState } from "react";
+import { Button, FormLabel, MenuItem, Select, TextField } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import Grid from "../../../../components/grid";
 import { MoreHoriz } from "@mui/icons-material";
-import QuestionDetail from "../../questions/question-detail";
-import QuestionForm from "../../questions/question-form";
 import style from "./student-list.module.scss";
 import ClassDetailModal from "../../../../components/class-detail-modal";
+import StudentForm from "../student-form";
+import { GridValueGetterParams } from "@mui/x-data-grid";
+import { genders } from "../../../../shared/contants/user";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/rootReducer";
+import {
+  deleteStudent,
+  getStudents,
+  setStudentLoading,
+} from "../../../../features/studentSlice";
+import { getAllClass } from "../../../../features/classSlice";
 
 const StudentList: React.FC = (): JSX.Element => {
   const [isOpenForm, setIsOpenForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isOpenClassDetail, setIsOpenClassDetail] = useState(false);
-  const [isOpenFormDetail, setIsOpenFormDetail] = useState(false);
   const [student, setStudent] = useState<any>();
+
   const columns = [
     {
-      field: "code",
+      field: "username",
       headerName: "Mã học sinh",
-      width: 100,
+      width: 220,
     },
     {
-      field: "name",
+      field: "fullName",
       headerName: "Tên học sinh",
-      width: 200,
+      width: 250,
     },
     {
       field: "birthday",
       headerName: "Ngày sinh",
+      width: 120,
+    },
+    {
+      field: "gender",
+      headerName: "Giới tính",
       width: 100,
+      valueGetter: (params: GridValueGetterParams) => {
+        return genders[params.row.gender];
+      },
     },
     {
       field: "email",
       headerName: "Mail",
-      minWidth: 200,
+      minWidth: 150,
       flex: 1,
     },
     {
-      field: "phone",
+      field: "phoneNumber",
       headerName: "Số điện thoại",
       width: 150,
     },
@@ -48,70 +65,148 @@ const StudentList: React.FC = (): JSX.Element => {
       renderCell(params: any) {
         return (
           <div className={style.class_info}>
-            <div>{params.row.classes.length && params.row.classes[0].name}</div>
+            <div>
+              {params.row.classes.length ? params.row.classes[0].className : ""}
+            </div>
             <div className="ml-auto cursor-pointer">
-              <MoreHoriz
-                onClick={() => {
-                  setStudent(params.row);
-                  setIsOpenClassDetail(true);
-                }}
-              />
+              {params.row.classes.length > 1 && (
+                <MoreHoriz
+                  onClick={() => {
+                    setStudent(params.row);
+                    setIsOpenClassDetail(true);
+                  }}
+                />
+              )}
             </div>
           </div>
         );
       },
     },
   ];
-  const data = [
-    {
-      id: 1,
-      code: "ST001",
-      name: "Trần Quốc Anh",
-      birthday: "17-02-1995",
-      email: "test@gmail.com",
-      phone: "0367894562",
-      classes: [
-        { id: 1, code: "ABC", name: "Lớp thầy Huấn 1" },
-        { id: 2, code: "ABC", name: "Lớp thầy Huấn 2" },
-        { id: 3, code: "ABC", name: "Lớp thầy Huấn 3" },
-        { id: 4, code: "ABC", name: "Lớp thầy Huấn 4" },
-      ],
-    },
-    {
-      id: 2,
-      code: "ST001",
-      name: "Trần Quốc B",
-      birthday: "17-02-1995",
-      email: "test2@gmail.com",
-      phone: "0367894562",
-      classes: [
-        { id: 1, name: "Lớp thầy Huấn 1" },
-        { id: 2, name: "Lớp thầy Huấn 2" },
-        { id: 3, name: "Lớp thầy Huấn 3" },
-        { id: 4, name: "Lớp thầy Huấn 4" },
-      ],
-    },
-  ];
+  const [filter, setFilter] = useState({
+    username: "",
+    fullName: "",
+    classID: "0",
+  });
+  const isLoading = useSelector(
+    (state: RootState) => state?.student?.isLoading
+  );
+  const data = useSelector((state: RootState) => state?.student?.data) || [];
+  const total = useSelector((state: RootState) => state?.student?.total) || 0;
+  const classes =
+    useSelector((state: RootState) => state?.class?.allData) || [];
+  const dispatch = useDispatch();
+  const [paramGrid, setParamGrid] = useState({
+    limit: 25,
+    page: 1,
+    order: "",
+    sortBy: "",
+  });
+
+  useEffect(() => {
+    dispatch(setStudentLoading(true));
+    dispatch<any>(getAllClass());
+  }, []);
+
+  useEffect(() => {
+    dispatch(setStudentLoading(true));
+  }, [paramGrid]);
+
+  useEffect(() => {
+    if (isLoading) {
+      const filters = [
+        {
+          value: filter.username,
+          name: "username",
+        },
+        {
+          value: filter.fullName,
+          name: "fullName",
+        },
+      ];
+      if (filter.classID && filter.classID !== "0") {
+        filters.push({
+          value: filter.classID,
+          name: "classID",
+        });
+      }
+      const param = {
+        page: paramGrid.page,
+        perPage: paramGrid.limit,
+        filters: filters,
+        sort: paramGrid.order
+          ? {
+              value: paramGrid.order,
+              name: `user.${paramGrid.sortBy}`,
+            }
+          : undefined,
+      };
+
+      dispatch<any>(getStudents(param));
+    }
+  }, [isLoading]);
+
   return (
     <div>
       <div className={style.filter}>
-        <TextField
-          placeholder="Mã học sinh"
-          value=""
-          onChange={(event) => {}}
-          size="small"
-        />
-        <TextField
-          placeholder="Tên học sinh"
-          value=""
-          onChange={(event) => {}}
-          sx={{ height: "33px", marginLeft: "16px" }}
-          size="small"
-        />
+        <div>
+          <FormLabel className="d-flex">Mã học sinh:</FormLabel>
+          <TextField
+            placeholder="Mã học sinh"
+            value={filter.username}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, username: event.target.value };
+              });
+            }}
+            size="small"
+            sx={{ height: "33px", width: "200px" }}
+          />
+        </div>
+        <div>
+          <FormLabel className="d-flex">Tên học sinh:</FormLabel>
+          <TextField
+            placeholder="Tên học sinh"
+            value={filter.fullName}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, fullName: event.target.value };
+              });
+            }}
+            sx={{ height: "33px", width: "200px" }}
+            size="small"
+          />
+        </div>
+        <div>
+          <FormLabel className="d-flex">Lớp học:</FormLabel>
+          <Select
+            value={filter.classID}
+            size="small"
+            name="level"
+            id="level"
+            sx={{ height: "33px", width: "200px" }}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, classID: event.target.value };
+              });
+            }}
+          >
+            <MenuItem key={0} value={0}>
+              --
+            </MenuItem>{" "}
+            {classes.map((i) => (
+              <MenuItem key={i.id} value={i.id}>
+                {i.className}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
         <Button
-          onClick={() => {}}
+          onClick={() => {
+            dispatch(setStudentLoading(true));
+          }}
           variant="outlined"
-          sx={{ height: "33px", marginLeft: "auto" }}
+          sx={{ height: "33px", marginLeft: "auto", marginTop: "auto" }}
         >
           Tìm kiếm
         </Button>
@@ -119,15 +214,15 @@ const StudentList: React.FC = (): JSX.Element => {
       <Grid
         columns={columns}
         data={data}
-        sxBox={{ height: "calc(100vh - 176px)", width: "100%" }}
+        sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
         action={{ edit: true, delete: true }}
-        message="Bạn có muốn xóa lớp học này?"
+        message="Bạn có muốn học sinh này?"
         onDelete={(e: any) => {
-          console.log(e);
+          dispatch<any>(deleteStudent(e.id));
         }}
         initialState={{
           sorting: {
-            sortModel: [{ field: "lastName", sort: "asc" }],
+            sortModel: [{ field: "", sort: "" }],
           },
         }}
         onEdit={(e: any) => {
@@ -136,9 +231,9 @@ const StudentList: React.FC = (): JSX.Element => {
           setIsOpenForm(true);
         }}
         onFilter={(e: any) => {
-          console.log(e);
+          setParamGrid(e);
         }}
-        total={10000}
+        total={total}
       />
       <Button
         sx={{ marginTop: "16px" }}
@@ -157,26 +252,12 @@ const StudentList: React.FC = (): JSX.Element => {
         }}
         classes={student?.classes}
       />
-      <QuestionDetail
-        open={isOpenFormDetail}
-        handleClose={() => {
-          setIsOpenFormDetail(false);
-        }}
-        data={student}
-      />
-      <QuestionForm
+
+      <StudentForm
         open={isOpenForm}
         isEdit={isEdit}
         handleClose={() => {
           setIsEdit(false);
-          setStudent({
-            content: "",
-            type: 0,
-            subject: 0,
-            choice_answers: [],
-            correct_answers: [],
-            note: "",
-          });
           setIsOpenForm(false);
         }}
         data={student}
