@@ -1,21 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk } from "../app/store";
-import { studentForm } from "../services/studentService";
+import { teacherForm } from "../services/teacherService";
 import {
-  addStudent,
-  getListStudent,
-  getStudentByID,
-  removeStudent,
-  updateStudent,
-} from "../services/studentService";
+  addTeacher,
+  getListTeacher,
+  getTeacherByID,
+  removeTeacher,
+  updateTeacher,
+} from "../services/teacherService";
 import { typeToast } from "../shared/contants/toast";
 import { filter } from "../shared/utils/inteface";
 import { setToast } from "./userSlice";
 
-interface StudentState {
+interface TeacherState {
   data: any[];
   error: any;
-  student: any;
+  teacher: any;
   isSuccess: boolean;
   isLoading: boolean;
   total: number;
@@ -24,14 +24,14 @@ interface StudentState {
 const initialState = {
   data: [],
   error: { username: "" },
-  student: {},
+  teacher: {},
   isSuccess: false,
   isLoading: false,
   total: 0,
-} as StudentState;
+} as TeacherState;
 
-const studentSlice = createSlice({
-  name: "student",
+const teacherSlice = createSlice({
+  name: "teacher",
   initialState,
   reducers: {
     setData(state, action: any) {
@@ -39,14 +39,14 @@ const studentSlice = createSlice({
       state.total = action.payload.totalElement;
       state.isLoading = false;
     },
-    setStudentLoading(state, action: PayloadAction<boolean>) {
+    setTeacherLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
-    setStudentSuccess(state, action: PayloadAction<boolean>) {
+    setTeacherSuccess(state, action: PayloadAction<boolean>) {
       state.isSuccess = action.payload;
     },
-    setStudent(state, action: any) {
-      state.student = action.payload;
+    setTeacher(state, action: any) {
+      state.teacher = action.payload;
       state.error = {};
     },
     setError(state, action: PayloadAction<any>) {
@@ -55,22 +55,23 @@ const studentSlice = createSlice({
   },
 });
 
-export const getStudents =
+export const getTeachers =
   (param: filter): AppThunk =>
   async (dispatch) => {
     try {
-      let response = await getListStudent(param);
+      dispatch(setTeacherSuccess(false));
+      let response = await getListTeacher(param);
       dispatch(setData(response.data));
     } catch (error: any) {}
   };
 
-export const getStudent =
+export const getTeacher =
   (id: string): AppThunk =>
   async (dispatch) => {
     try {
-      let response = await getStudentByID(id);
+      let response = await getTeacherByID(id);
       dispatch(
-        setStudent({
+        setTeacher({
           ...response.data,
           password: "",
           confirmPassword: "",
@@ -83,19 +84,19 @@ export const getStudent =
           type: typeToast.ERROR,
         })
       );
-      dispatch(setStudentLoading(true));
+      dispatch(setTeacherLoading(true));
     }
   };
 
-export const createStudent =
-  (data: studentForm): AppThunk =>
+export const createTeacher =
+  (data: teacherForm): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(setError({ field: "username", value: "" }));
-      dispatch(setStudentSuccess(false));
-      await addStudent(data);
-      dispatch(setStudentLoading(true));
-      dispatch(setStudentSuccess(true));
+      dispatch(setTeacherSuccess(false));
+      await addTeacher(data);
+      dispatch(setTeacherLoading(true));
+      dispatch(setTeacherSuccess(true));
     } catch (error: any) {
       if (error.mgsCode === "USERNAME_IS_USED") {
         dispatch(setError({ field: "username", value: error.message }));
@@ -103,14 +104,14 @@ export const createStudent =
     }
   };
 
-export const editStudent =
-  (data: studentForm): AppThunk =>
+export const editTeacher =
+  (data: teacherForm): AppThunk =>
   async (dispatch) => {
     try {
-      dispatch(setStudentSuccess(false));
-      await updateStudent(data);
-      dispatch(setStudentLoading(true));
-      dispatch(setStudentSuccess(true));
+      dispatch(setTeacherSuccess(false));
+      await updateTeacher(data);
+      dispatch(setTeacherLoading(true));
+      dispatch(setTeacherSuccess(true));
     } catch (error: any) {
       if (error.mgsCode === "USERNAME_IS_USED") {
         dispatch(setError({ field: "username", value: error.message }));
@@ -118,12 +119,12 @@ export const editStudent =
     }
   };
 
-export const deleteStudent =
+export const deleteTeacher =
   (id: string): AppThunk =>
   async (dispatch) => {
     try {
-      await removeStudent(id);
-      dispatch(setStudentLoading(true));
+      await removeTeacher(id);
+      dispatch(setTeacherLoading(true));
       dispatch(
         setToast({
           message: "Xóa học sinh thành công.",
@@ -137,15 +138,15 @@ export const deleteStudent =
           type: typeToast.ERROR,
         })
       );
-      dispatch(setStudentLoading(true));
+      dispatch(setTeacherLoading(true));
     }
   };
 
 export const {
   setData,
-  setStudentLoading,
-  setStudentSuccess,
-  setStudent,
+  setTeacherLoading,
+  setTeacherSuccess,
+  setTeacher,
   setError,
-} = studentSlice.actions;
-export default studentSlice.reducer;
+} = teacherSlice.actions;
+export default teacherSlice.reducer;

@@ -4,31 +4,23 @@ import {
   FormHelperText,
   FormLabel,
   Button,
-  Checkbox,
   TextField,
+  Radio,
 } from "@mui/material";
 import style from "./index.module.scss";
 import { InputProp } from "../../shared/utils/inteface";
 import { red } from "@mui/material/colors";
 import { DeleteOutline } from "@mui/icons-material";
 const QuestionAnswer: React.FC<InputProp> = (props): JSX.Element => {
-  const {
-    errorText,
-    value,
-    label,
-    data,
-    className,
-    onChange,
-    required,
-    isEdit,
-  } = props;
+  const { errorText, value, label, data, className, onChange, required } =
+    props;
   interface type {
-    choice_answers: string[];
-    correct_answers: number[];
+    choiceAnswers: string[];
+    correctAnswer: number;
   }
   const [state, setState] = useState<type>({
-    choice_answers: [],
-    correct_answers: [],
+    choiceAnswers: [],
+    correctAnswer: 0,
   });
   const [isFirst, setIsFirst] = useState(true);
 
@@ -36,8 +28,8 @@ const QuestionAnswer: React.FC<InputProp> = (props): JSX.Element => {
     setState((state) => {
       return {
         ...state,
-        choice_answers: data,
-        correct_answers: value as number[],
+        choiceAnswers: data,
+        correctAnswer: value as number,
       };
     });
   }, []);
@@ -48,94 +40,91 @@ const QuestionAnswer: React.FC<InputProp> = (props): JSX.Element => {
   }, [state]);
 
   const onCheckClicked = (index: number) => {
-    if (state.correct_answers.includes(index)) {
-      setState((state) => {
-        return {
-          ...state,
-          correct_answers: state.correct_answers.filter((i) => i !== index),
-        };
-      });
-    } else {
-      let answer = JSON.parse(JSON.stringify(state.correct_answers));
-      answer.push(index);
-      setState((state) => {
-        return {
-          ...state,
-          correct_answers: answer,
-        };
-      });
-    }
+    setState((state) => {
+      return {
+        ...state,
+        correctAnswer: index,
+      };
+    });
   };
 
   const onUpdateQuestion = (e: any, index: number) => {
-    let answer = JSON.parse(JSON.stringify(state.choice_answers));
+    let answer = JSON.parse(JSON.stringify(state.choiceAnswers));
     answer[index] = e.target.value;
     setState((state) => {
       return {
         ...state,
-        choice_answers: answer,
+        choiceAnswers: answer,
       };
     });
   };
 
   const addAnswer = () => {
-    let choice_answers = JSON.parse(JSON.stringify(state.choice_answers));
-    choice_answers.push("");
+    let choiceAnswers = JSON.parse(JSON.stringify(state.choiceAnswers));
+    choiceAnswers.push("");
 
     setState((state) => {
       return {
         ...state,
-        choice_answers: choice_answers,
+        choiceAnswers: choiceAnswers,
       };
     });
   };
 
   const deleteAnswer = (index: number) => {
-    let choice_answers = JSON.parse(JSON.stringify(state.choice_answers));
-    let correct_answers = JSON.parse(JSON.stringify(state.correct_answers));
-    choice_answers = choice_answers.filter(
+    let choiceAnswers: string[] = JSON.parse(
+      JSON.stringify(state.choiceAnswers)
+    );
+    let correctAnswer = state.correctAnswer;
+    let count = 0;
+    choiceAnswers.forEach((text: string, i: number) => {
+      if (correctAnswer === i) {
+        correctAnswer = count;
+      }
+      if (i !== index) {
+        count++;
+      }
+    });
+    choiceAnswers = choiceAnswers.filter(
       (text: string, i: number) => i !== index
     );
-    correct_answers = correct_answers
-      .filter((value: number) => value !== index)
-      .map((value: number) => {
-        if (value > index) return value - 1;
-        return value;
-      });
 
     setState((state) => {
       return {
         ...state,
-        choice_answers: choice_answers,
-        correct_answers: correct_answers,
+        choiceAnswers: choiceAnswers,
+        correctAnswer: correctAnswer,
       };
     });
   };
 
   return (
     <div className={className}>
-      {label && (
-        <FormLabel className="d-flex">
-          {label}&nbsp;
-          {required && (
-            <div>
-              <div style={{ color: red["A400"] }}>*</div>
-            </div>
-          )}
-          :
-        </FormLabel>
-      )}
-      {errorText && (
-        <FormHelperText className={style.error} error={!!errorText}>
-          {errorText}
-        </FormHelperText>
-      )}
+      <div className="d-flex">
+        {" "}
+        {label && (
+          <FormLabel className="d-flex  mr-auto">
+            {label}&nbsp;
+            {required && (
+              <div>
+                <div style={{ color: red["A400"] }}>*</div>
+              </div>
+            )}
+            :
+          </FormLabel>
+        )}
+        {errorText && (
+          <FormHelperText className={style.error} error={!!errorText}>
+            {errorText}
+          </FormHelperText>
+        )}
+      </div>
       <ol type="A" style={{ padding: "0" }}>
-        {state.choice_answers?.length &&
-          state.choice_answers.map((text: string, index: number) => (
+        {state.choiceAnswers?.length &&
+          state.choiceAnswers.map((text: string, index: number) => (
             <div key={index} className={style.answer_input}>
-              <Checkbox
-                checked={state.correct_answers.includes(index)}
+              <Radio
+                checked={state.correctAnswer === index}
                 className={style.checkbox}
                 onClick={() => {
                   onCheckClicked(index);
@@ -149,13 +138,13 @@ const QuestionAnswer: React.FC<InputProp> = (props): JSX.Element => {
                   onUpdateQuestion(e, index);
                 }}
                 variant="outlined"
-                value={state.choice_answers[index] || ""}
+                value={state.choiceAnswers[index] || ""}
                 onBlur={(e) => {
                   e.target.value = e.target.value.trim();
                   onUpdateQuestion(e, index);
                 }}
               />
-              {state.choice_answers.length > 2 ? (
+              {state.choiceAnswers.length > 1 ? (
                 <DeleteOutline
                   className="cursor-pointer"
                   onClick={() => {
@@ -169,11 +158,9 @@ const QuestionAnswer: React.FC<InputProp> = (props): JSX.Element => {
             </div>
           ))}
       </ol>
-      {isEdit && (
-        <Button className={style.button} onClick={addAnswer}>
-          + Thêm đáp án
-        </Button>
-      )}
+      <Button className={style.button} onClick={addAnswer}>
+        + Thêm đáp án
+      </Button>
     </div>
   );
 };

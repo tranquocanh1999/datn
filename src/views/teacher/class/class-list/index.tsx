@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, FormLabel, TextField } from "@mui/material";
-import { GridValueGetterParams } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../app/rootReducer";
@@ -9,8 +9,6 @@ import {
   getClasses,
   setClassLoading,
 } from "../../../../features/classSlice";
-import { setToast } from "../../../../features/userSlice";
-import { typeToast } from "../../../../shared/contants/toast";
 import ClassForm from "../class-form";
 import style from "./class-list.module.scss";
 
@@ -22,13 +20,11 @@ const columns = [
     width: 150,
   },
   {
-    field: "teacher_name",
-    headerName: "Giáo viên",
+    field: "numberOfTeacher",
+    headerName: "Số giáo viên",
     sortable: false,
     width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.row.teacher.fullName;
-    },
+    type: "number",
   },
   {
     field: "numberOfStudent",
@@ -69,7 +65,7 @@ const ClassList: React.FC = (): JSX.Element => {
   }, [paramGrid]);
 
   const isDisableDelete = (e: any) => {
-    return e.numberOfStudent;
+    return e.numberOfStudent || e.numberOfTeacher;
   };
 
   useEffect(() => {

@@ -1,21 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk } from "../app/store";
-import { studentForm } from "../services/studentService";
+import { questionForm } from "../services/questionService";
 import {
-  addStudent,
-  getListStudent,
-  getStudentByID,
-  removeStudent,
-  updateStudent,
-} from "../services/studentService";
+  addQuestion,
+  getListQuestion,
+  getQuestionByID,
+  removeQuestion,
+  updateQuestion,
+} from "../services/questionService";
 import { typeToast } from "../shared/contants/toast";
 import { filter } from "../shared/utils/inteface";
 import { setToast } from "./userSlice";
 
-interface StudentState {
+interface QuestionState {
   data: any[];
   error: any;
-  student: any;
+  question: any;
   isSuccess: boolean;
   isLoading: boolean;
   total: number;
@@ -24,14 +24,14 @@ interface StudentState {
 const initialState = {
   data: [],
   error: { username: "" },
-  student: {},
+  question: {},
   isSuccess: false,
   isLoading: false,
   total: 0,
-} as StudentState;
+} as QuestionState;
 
-const studentSlice = createSlice({
-  name: "student",
+const questionSlice = createSlice({
+  name: "question",
   initialState,
   reducers: {
     setData(state, action: any) {
@@ -39,14 +39,14 @@ const studentSlice = createSlice({
       state.total = action.payload.totalElement;
       state.isLoading = false;
     },
-    setStudentLoading(state, action: PayloadAction<boolean>) {
+    setQuestionLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
-    setStudentSuccess(state, action: PayloadAction<boolean>) {
+    setQuestionSuccess(state, action: PayloadAction<boolean>) {
       state.isSuccess = action.payload;
     },
-    setStudent(state, action: any) {
-      state.student = action.payload;
+    setQuestion(state, action: any) {
+      state.question = action.payload;
       state.error = {};
     },
     setError(state, action: PayloadAction<any>) {
@@ -55,22 +55,23 @@ const studentSlice = createSlice({
   },
 });
 
-export const getStudents =
+export const getQuestions =
   (param: filter): AppThunk =>
   async (dispatch) => {
     try {
-      let response = await getListStudent(param);
+      dispatch(setQuestionSuccess(false));
+      let response = await getListQuestion(param);
       dispatch(setData(response.data));
     } catch (error: any) {}
   };
 
-export const getStudent =
+export const getQuestion =
   (id: string): AppThunk =>
   async (dispatch) => {
     try {
-      let response = await getStudentByID(id);
+      let response = await getQuestionByID(id);
       dispatch(
-        setStudent({
+        setQuestion({
           ...response.data,
           password: "",
           confirmPassword: "",
@@ -83,19 +84,19 @@ export const getStudent =
           type: typeToast.ERROR,
         })
       );
-      dispatch(setStudentLoading(true));
+      dispatch(setQuestionLoading(true));
     }
   };
 
-export const createStudent =
-  (data: studentForm): AppThunk =>
+export const createQuestion =
+  (data: questionForm): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(setError({ field: "username", value: "" }));
-      dispatch(setStudentSuccess(false));
-      await addStudent(data);
-      dispatch(setStudentLoading(true));
-      dispatch(setStudentSuccess(true));
+      dispatch(setQuestionSuccess(false));
+      await addQuestion(data);
+      dispatch(setQuestionLoading(true));
+      dispatch(setQuestionSuccess(true));
     } catch (error: any) {
       if (error.mgsCode === "USERNAME_IS_USED") {
         dispatch(setError({ field: "username", value: error.message }));
@@ -103,14 +104,14 @@ export const createStudent =
     }
   };
 
-export const editStudent =
-  (data: studentForm): AppThunk =>
+export const editQuestion =
+  (data: questionForm): AppThunk =>
   async (dispatch) => {
     try {
-      dispatch(setStudentSuccess(false));
-      await updateStudent(data);
-      dispatch(setStudentLoading(true));
-      dispatch(setStudentSuccess(true));
+      dispatch(setQuestionSuccess(false));
+      await updateQuestion(data);
+      dispatch(setQuestionLoading(true));
+      dispatch(setQuestionSuccess(true));
     } catch (error: any) {
       if (error.mgsCode === "USERNAME_IS_USED") {
         dispatch(setError({ field: "username", value: error.message }));
@@ -118,15 +119,15 @@ export const editStudent =
     }
   };
 
-export const deleteStudent =
+export const deleteQuestion =
   (id: string): AppThunk =>
   async (dispatch) => {
     try {
-      await removeStudent(id);
-      dispatch(setStudentLoading(true));
+      await removeQuestion(id);
+      dispatch(setQuestionLoading(true));
       dispatch(
         setToast({
-          message: "Xóa học sinh thành công.",
+          message: "Xóa câu hỏi thành công.",
           type: typeToast.SUCCESS,
         })
       );
@@ -137,15 +138,15 @@ export const deleteStudent =
           type: typeToast.ERROR,
         })
       );
-      dispatch(setStudentLoading(true));
+      dispatch(setQuestionLoading(true));
     }
   };
 
 export const {
   setData,
-  setStudentLoading,
-  setStudentSuccess,
-  setStudent,
+  setQuestionLoading,
+  setQuestionSuccess,
+  setQuestion,
   setError,
-} = studentSlice.actions;
-export default studentSlice.reducer;
+} = questionSlice.actions;
+export default questionSlice.reducer;

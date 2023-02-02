@@ -18,6 +18,9 @@ function App() {
   useEffect(() => {
     if (toast.message) {
       setOpenToast(true);
+      setTimeout(() => {
+        setOpenToast(false);
+      }, 3000);
     }
   }, [toast]);
 

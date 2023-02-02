@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
   TextField,
@@ -7,15 +8,18 @@ import {
   FormLabel,
 } from "@mui/material";
 import { GridValueGetterParams } from "@mui/x-data-grid";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/rootReducer";
 import Grid from "../../../../components/grid";
 import MathEquation from "../../../../components/math/math-equation";
 import {
-  answers,
-  levels,
-  questionTypes,
-  subjects,
-} from "../../../../shared/contants/question";
+  deleteQuestion,
+  getQuestions,
+  setQuestionLoading,
+} from "../../../../features/questionSlice";
+import { getSubjectList } from "../../../../features/subjectSlice";
+import { answers, levels } from "../../../../shared/contants/question";
 import QuestionDetail from "../question-detail";
 import QuestionForm from "../question-form";
 import style from "./question-list.module.scss";
@@ -25,6 +29,21 @@ const QuestionList: React.FC = (): JSX.Element => {
   const [isEdit, setIsEdit] = useState(false);
   const [isOpenFormDetail, setIsOpenFormDetail] = useState(false);
   const [question, setQuestion] = useState<any>();
+  const isLoading = useSelector(
+    (state: RootState) => state?.question?.isLoading
+  );
+  const subjects =
+    useSelector((state: RootState) => state?.subject?.data) || [];
+  const data = useSelector((state: RootState) => state?.question?.data) || [];
+  const total = useSelector((state: RootState) => state?.question?.total) || 0;
+  const [filter, setFilter] = useState({ level: "0", subject: "0" });
+  const dispatch = useDispatch();
+  const [paramGrid, setParamGrid] = useState({
+    limit: 25,
+    page: 1,
+    order: "",
+    sortBy: "",
+  });
   const columns = [
     {
       field: "code",
@@ -45,25 +64,17 @@ const QuestionList: React.FC = (): JSX.Element => {
       },
     },
     {
-      field: "type",
-      headerName: "Loại câu hỏi",
-      width: 120,
-      valueGetter: (params: GridValueGetterParams) =>
-        `${questionTypes[params.row.type] || ""} `,
-    },
-    {
       field: "level",
       headerName: "Độ khó",
       width: 120,
       valueGetter: (params: GridValueGetterParams) =>
-        `${levels[params.row.type] || ""} `,
+        `${levels[params.row.level - 1] || ""} `,
     },
     {
       field: "subject",
       headerName: "Môn học",
       width: 120,
-      valueGetter: (params: GridValueGetterParams) =>
-        `${subjects[params.row.subject] || ""} `,
+      valueGetter: (params: GridValueGetterParams) => params.row.subject.name,
     },
     {
       field: "content",
@@ -76,7 +87,7 @@ const QuestionList: React.FC = (): JSX.Element => {
       },
     },
     {
-      field: "choice_answers",
+      field: "choiceAnswer",
       headerName: "Đáp án trắc nghiệm",
       width: 150,
       minWidth: 150,
@@ -85,7 +96,7 @@ const QuestionList: React.FC = (): JSX.Element => {
       renderCell(params: any) {
         return (
           <ol type="A">
-            {params.row.choice_answers.map((answer: string, index: number) => (
+            {params.row.choiceAnswers.map((answer: string, index: number) => (
               <li key={index}>
                 <MathEquation value={answer} />
               </li>
@@ -95,14 +106,12 @@ const QuestionList: React.FC = (): JSX.Element => {
       },
     },
     {
-      field: "correct_answers",
+      field: "correctAnswer",
       headerName: "Đáp án đúng",
       sortable: false,
       width: 110,
       valueGetter: (params: GridValueGetterParams) => {
-        return params.row.correct_answers
-          .map((answer: number) => answers[answer])
-          .join(",");
+        return answers[params.row.correctAnswer];
       },
     },
     {
@@ -114,102 +123,102 @@ const QuestionList: React.FC = (): JSX.Element => {
       flex: 1,
     },
   ];
-  const data = [
-    {
-      id: 1,
-      code: "Q001",
-      content:
-        "Động lực của dòng mạch rây là sự chệnh lệch áp suất thẩm thấu giữa  $\\frac{x+2}{y-1}+\\frac{x+2}{y-1}+\\frac{x+2}{y-1}+\\frac{x+2}{y-1}\\frac{x+2}{y-1}$ dd",
-      type: 0,
-      subject: 0,
-      level: 0,
-      choice_answers: [
-        "cành và lá  $\\frac{x+2}{y-1}$ dd",
-        "cành và lá",
-        "rễ và thân",
-        "thân và lá",
-      ],
-      correct_answers: [0, 1, 2],
-      note: "test",
-    },
-    {
-      id: 2,
-      code: "Q001",
-      content:
-        "Động lực của dòng mạch rây là sự chệnh lệch áp suất thẩm thấu giữa",
-      type: 1,
-      subject: 1,
-      level: 1,
-      choice_answers: ["lá và rễ", "cành và lá", "rễ và thân", "thân và lá"],
-      correct_answers: [0],
-      note: "test",
-    },
-  ];
+
+  useEffect(() => {
+    dispatch(setQuestionLoading(true));
+    dispatch<any>(getSubjectList());
+  }, []);
+
+  useEffect(() => {
+    dispatch(setQuestionLoading(true));
+  }, [paramGrid]);
+
+  useEffect(() => {
+    if (isLoading) {
+      const filters = [];
+      if (filter.level && filter.level !== "0") {
+        filters.push({
+          value: filter.level,
+          name: "level",
+        });
+      }
+      if (filter.subject && filter.subject !== "0") {
+        filters.push({
+          value: filter.subject,
+          name: "subject",
+        });
+      }
+      const param = {
+        page: paramGrid.page,
+        perPage: paramGrid.limit,
+        filters: filters,
+
+        sort: paramGrid.order
+          ? {
+              value: paramGrid.order,
+              name: paramGrid.sortBy,
+            }
+          : undefined,
+      };
+      dispatch<any>(getQuestions(param));
+    }
+  }, [isLoading]);
+
   return (
     <div>
       <div className={style.filter}>
         <div>
-          <FormLabel className="d-flex">Mã lớp học:</FormLabel>
-          <TextField
-            placeholder="Mã lớp học"
-            value=""
-            onChange={(event) => {}}
-            sx={{ height: "33px", width: "200px" }}
-            size="small"
-          />
-        </div>
-        <div>
-          <FormLabel className="d-flex">Tên lớp học:</FormLabel>
-          <TextField
-            placeholder="Tên lớp học"
-            value=""
-            onChange={(event) => {}}
-            sx={{ height: "33px", width: "200px" }}
-            size="small"
-          />{" "}
-        </div>
-        <div>
           <FormLabel className="d-flex">Môn học:</FormLabel>
           <Select
-            value={1}
+            value={filter.subject}
             size="small"
             name="subject"
             id="subject"
             sx={{ height: "33px", width: "200px" }}
-            onChange={() => {}}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, subject: event.target.value };
+              });
+            }}
           >
             <MenuItem key={0} value={0}>
               --
             </MenuItem>
-            {subjects.map((text: string, index: number) => (
-              <MenuItem key={index} value={index}>
-                {text}
+            {subjects.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.name}
               </MenuItem>
             ))}
-          </Select>{" "}
+          </Select>
         </div>
         <div>
           <FormLabel className="d-flex">Độ khó:</FormLabel>
           <Select
-            value={1}
+            value={filter.level}
             size="small"
             name="level"
             id="level"
             sx={{ height: "33px", width: "200px" }}
-            onChange={() => {}}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, level: event.target.value };
+              });
+            }}
           >
             <MenuItem key={0} value={0}>
               --
             </MenuItem>
             {levels.map((text: string, index: number) => (
-              <MenuItem key={index} value={index}>
+              <MenuItem key={index + 1} value={index + 1}>
                 {text}
               </MenuItem>
             ))}
           </Select>
         </div>
         <Button
-          onClick={() => {}}
+          onClick={() => {
+            dispatch(setQuestionLoading(true));
+          }}
           variant="outlined"
           sx={{ height: "33px", marginLeft: "auto", marginTop: "auto" }}
         >
@@ -222,24 +231,20 @@ const QuestionList: React.FC = (): JSX.Element => {
         data={data}
         sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
         action={{ edit: true, delete: true }}
-        message="Bạn có muốn xóa lớp học này?"
+        message="Bạn có muốn xóa câu hỏi này?"
         onDelete={(e: any) => {
-          console.log(e);
+          dispatch<any>(deleteQuestion(e.id));
         }}
-        initialState={{
-          sorting: {
-            sortModel: [{ field: "lastName", sort: "asc" }],
-          },
-        }}
+        initialState={{}}
         onEdit={(e: any) => {
           setIsEdit(true);
           setQuestion(e);
           setIsOpenForm(true);
         }}
         onFilter={(e: any) => {
-          console.log(e);
+          setParamGrid(e);
         }}
-        total={10000}
+        total={total}
       />
 
       <Button

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, FormLabel, MenuItem, Select, TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Grid from "../../../../components/grid";
 import style from "./user-list.module.scss";
 import ClassDetailModal from "../../../../components/class-detail-modal";
@@ -8,6 +9,15 @@ import { GridValueGetterParams } from "@mui/x-data-grid";
 import UserForm from "../user-form";
 import { MoreHoriz } from "@mui/icons-material";
 import { genders } from "../../../../shared/contants/user";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/rootReducer";
+import {
+  deleteTeacher,
+  getTeachers,
+  setTeacherLoading,
+} from "../../../../features/teacherSlice";
+import { getAllClass } from "../../../../features/classSlice";
+import { getSubjectList } from "../../../../features/subjectSlice";
 
 const UserList: React.FC = (): JSX.Element => {
   const [isOpenForm, setIsOpenForm] = useState(false);
@@ -16,7 +26,7 @@ const UserList: React.FC = (): JSX.Element => {
   const [user, setUser] = useState<any>();
   const columns = [
     {
-      field: "code",
+      field: "username",
       headerName: "Mã nhân viên",
       width: 120,
     },
@@ -46,7 +56,7 @@ const UserList: React.FC = (): JSX.Element => {
       flex: 1,
     },
     {
-      field: "phone",
+      field: "phoneNumber",
       headerName: "Số điện thoại",
       width: 150,
     },
@@ -60,7 +70,7 @@ const UserList: React.FC = (): JSX.Element => {
       renderCell(params: any) {
         return (
           <ul style={{ padding: "0 16px" }}>
-            {params.row.subjects.map((subject: any, index: number) => (
+            {params.row.subjects?.map((subject: any, index: number) => (
               <li key={index}>{subject.name}</li>
             ))}
           </ul>
@@ -71,7 +81,7 @@ const UserList: React.FC = (): JSX.Element => {
       field: "role",
       headerName: "Chức vụ",
       width: 100,
-      valueGetter: (params: GridValueGetterParams) => roles[params.row.role],
+      valueGetter: (params: GridValueGetterParams) => roles[params.row.role.id],
     },
     {
       field: "classes",
@@ -81,117 +91,126 @@ const UserList: React.FC = (): JSX.Element => {
       renderCell(params: any) {
         return (
           <div className={style.class_info}>
-            <div>{params.row.classes.length && params.row.classes[0].name}</div>
+            <div>
+              {params.row.classes.length ? params.row.classes[0].className : ""}
+            </div>
             <div className="ml-auto cursor-pointer">
-              <MoreHoriz
-                onClick={() => {
-                  setUser(params.row);
-                  setIsOpenClassDetail(true);
-                }}
-              />
+              {params.row.classes.length > 1 && (
+                <MoreHoriz
+                  onClick={() => {
+                    setUser(params.row);
+                    setIsOpenClassDetail(true);
+                  }}
+                />
+              )}
             </div>
           </div>
         );
       },
     },
   ];
-  const data = [
-    {
-      id: 1,
-      code: "ST001",
-      fullName: "Trần Quốc Anh",
-      username: "Trần Quốc Anh",
-      birthday: "17-02-1995",
-      gender: 1,
-      subjects: [
-        { id: 1, name: "Toán" },
-        { id: 2, name: "Sinh học" },
-      ],
-      email: "test@gmail.com",
-      phone: "0367894562",
-      classes: [
-        { id: 1, code: "ABC", name: "Lớp thầy Huấn 1" },
-        { id: 2, code: "ABC", name: "Lớp thầy Huấn 2" },
-        { id: 3, code: "ABC", name: "Lớp thầy Huấn 3" },
-        { id: 4, code: "ABC", name: "Lớp thầy Huấn 4" },
-      ],
-      role: 1,
-    },
-    {
-      id: 2,
-      code: "ST001",
-      fullName: "Trần Quốc B",
-      username: "Trần Quốc Anh",
-      birthday: "17-02-1995",
-      gender: 0,
-      subjects: [
-        { id: 0, name: "Toán" },
-        { id: 1, name: "Sinh học" },
-      ],
-      email: "test2@gmail.com",
-      phone: "0367894562",
-      classes: [
-        { id: 1, code: "ABC", name: "Lớp thầy Huấn 1" },
-        { id: 2, code: "ABC", name: "Lớp thầy Huấn 2" },
-        { id: 3, code: "ABC", name: "Lớp thầy Huấn 3" },
-        { id: 4, code: "ABC", name: "Lớp thầy Huấn 4" },
-      ],
-      role: 0,
-    },
-  ];
-  const classes = [
-    {
-      id: 1,
-      code: "CL001",
-      name: "Lớp thầy tuấn",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 2,
-      code: "CL001",
-      name: "Lớp thầy tuấn",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 3,
-      code: "CL001",
-      name: "Lớp thầy tuấn",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 4,
-      code: "CL001",
-      name: "Lớp thầy tuấn",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-  ];
+  const [filter, setFilter] = useState({
+    username: "",
+    fullName: "",
+    classID: "0",
+    subjectID: "0",
+  });
+  const isLoading = useSelector(
+    (state: RootState) => state?.teacher?.isLoading
+  );
+  const data = useSelector((state: RootState) => state?.teacher?.data) || [];
+  const total = useSelector((state: RootState) => state?.teacher?.total) || 0;
+  const classes =
+    useSelector((state: RootState) => state?.class?.allData) || [];
+  const subjects =
+    useSelector((state: RootState) => state?.subject?.data) || [];
+  const dispatch = useDispatch();
+  const [paramGrid, setParamGrid] = useState({
+    limit: 25,
+    page: 1,
+    order: "",
+    sortBy: "",
+  });
+
+  useEffect(() => {
+    dispatch(setTeacherLoading(true));
+    dispatch<any>(getAllClass());
+    dispatch<any>(getSubjectList());
+  }, []);
+
+  useEffect(() => {
+    dispatch(setTeacherLoading(true));
+  }, [paramGrid]);
+
+  useEffect(() => {
+    if (isLoading) {
+      const filters = [
+        {
+          value: filter.username,
+          name: "username",
+        },
+        {
+          value: filter.fullName,
+          name: "fullName",
+        },
+      ];
+      if (filter.classID && filter.classID !== "0") {
+        filters.push({
+          value: filter.classID,
+          name: "classID",
+        });
+      }
+      console.log(filter.classID);
+
+      if (filter.subjectID && filter.subjectID !== "0") {
+        filters.push({
+          value: filter.subjectID,
+          name: "subjectID",
+        });
+      }
+      const param = {
+        page: paramGrid.page,
+        perPage: paramGrid.limit,
+        filters: filters,
+        sort: paramGrid.order
+          ? {
+              value: paramGrid.order,
+              name: `user.${paramGrid.sortBy}`,
+            }
+          : undefined,
+      };
+
+      dispatch<any>(getTeachers(param));
+    }
+  }, [isLoading]);
+
   return (
     <div>
       <div className={style.filter}>
         <div>
-          <FormLabel className="d-flex">Mã nhân viên:</FormLabel>
+          <FormLabel className="d-flex">Mã học sinh:</FormLabel>
           <TextField
-            placeholder="Mã nhân viên"
-            value=""
-            onChange={(event) => {}}
-            sx={{ height: "33px", width: "200px" }}
+            placeholder="Mã giáo viên"
+            value={filter.username}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, username: event.target.value };
+              });
+            }}
             size="small"
+            sx={{ height: "33px", width: "200px" }}
           />
         </div>
         <div>
-          <FormLabel className="d-flex">Tên nhân viên:</FormLabel>
+          <FormLabel className="d-flex">Tên học sinh:</FormLabel>
           <TextField
-            placeholder="Tên nhân viên"
-            value=""
-            onChange={(event) => {}}
+            placeholder="Tên giáo viên"
+            value={filter.fullName}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, fullName: event.target.value };
+              });
+            }}
             sx={{ height: "33px", width: "200px" }}
             size="small"
           />
@@ -199,17 +218,45 @@ const UserList: React.FC = (): JSX.Element => {
         <div>
           <FormLabel className="d-flex">Lớp học:</FormLabel>
           <Select
-            value={0}
+            value={filter.classID}
             size="small"
-            name="level"
-            id="level"
+            name="class"
+            id="class"
             sx={{ height: "33px", width: "200px" }}
-            onChange={() => {}}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, classID: event.target.value };
+              });
+            }}
           >
             <MenuItem key={0} value={0}>
               --
-            </MenuItem>{" "}
+            </MenuItem>
             {classes.map((i) => (
+              <MenuItem key={i.id} value={i.id}>
+                {i.className}
+              </MenuItem>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <FormLabel className="d-flex">Môn giảng dạy:</FormLabel>
+          <Select
+            value={filter.subjectID}
+            size="small"
+            name="class"
+            id="class"
+            sx={{ height: "33px", width: "200px" }}
+            onChange={(event) => {
+              setFilter((state) => {
+                return { ...state, subjectID: event.target.value };
+              });
+            }}
+          >
+            <MenuItem key={0} value={0}>
+              --
+            </MenuItem>
+            {subjects.map((i) => (
               <MenuItem key={i.id} value={i.id}>
                 {i.name}
               </MenuItem>
@@ -217,40 +264,38 @@ const UserList: React.FC = (): JSX.Element => {
           </Select>
         </div>
         <Button
-          onClick={() => {}}
+          onClick={() => {
+            dispatch(setTeacherLoading(true));
+          }}
           variant="outlined"
-          sx={{ height: "33px", marginLeft: "auto" }}
+          sx={{ height: "33px", marginLeft: "auto", marginTop: "auto" }}
         >
           Tìm kiếm
         </Button>
       </div>
       <Grid
         getRowHeight={(a: any) => {
-          if (a.model.subjects.length > 2) return "auto";
+          if (a.model.subjects?.length > 2) return "auto";
           return 52;
         }}
         columns={columns}
         data={data}
         sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
         action={{ edit: true, delete: true }}
-        message="Bạn có muốn xóa lớp học này?"
+        message="Bạn có muốn xóa giáo viên này?"
         onDelete={(e: any) => {
-          console.log(e);
+          dispatch<any>(deleteTeacher(e.id));
         }}
-        initialState={{
-          sorting: {
-            sortModel: [{ field: "lastName", sort: "asc" }],
-          },
-        }}
+        initialState={{}}
         onEdit={(e: any) => {
           setIsEdit(true);
           setUser(e);
           setIsOpenForm(true);
         }}
         onFilter={(e: any) => {
-          console.log(e);
+          setParamGrid(e);
         }}
-        total={10000}
+        total={total}
       />
       <Button
         sx={{ marginTop: "16px" }}
@@ -269,15 +314,17 @@ const UserList: React.FC = (): JSX.Element => {
         }}
         classes={user?.classes}
       />
-      <UserForm
-        open={isOpenForm}
-        isEdit={isEdit}
-        handleClose={() => {
-          setIsEdit(false);
-          setIsOpenForm(false);
-        }}
-        data={user}
-      />
+      {isOpenForm && (
+        <UserForm
+          open={isOpenForm}
+          isEdit={isEdit}
+          handleClose={() => {
+            setIsEdit(false);
+            setIsOpenForm(false);
+          }}
+          data={user}
+        />
+      )}
     </div>
   );
 };

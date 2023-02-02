@@ -15,85 +15,123 @@ import style from "./user-form.module.scss";
 import { Close } from "@mui/icons-material";
 import { useFormik } from "formik";
 import FieldInput from "../../../../components/input";
-import { classFormSchema } from "../../../../shared/schema/class-schema";
 import SelectInput from "../../../../components/select";
 import DateInput from "../../../../components/date-picker";
 import { genders } from "../../../../shared/contants/user";
 import { roles } from "../../../../shared/contants/role";
-import { subjects } from "../../../../shared/contants/question";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/rootReducer";
+import { setToast } from "../../../../features/userSlice";
+import { getAllClass } from "../../../../features/classSlice";
+import {
+  createTeacher,
+  editTeacher,
+  getTeacher,
+} from "../../../../features/teacherSlice";
+import { typeToast } from "../../../../shared/contants/toast";
+import { getSubjectList } from "../../../../features/subjectSlice";
+import { teacherFormSchema } from "../../../../shared/schema/teacher-schema";
+import moment from "moment";
 const UserForm: React.FC<FormProps> = (props): JSX.Element => {
   const { open, data, handleClose, isEdit } = props;
+  const classes =
+    useSelector((state: RootState) => state?.class?.allData) || [];
+  const success = useSelector((state: RootState) => state?.teacher?.isSuccess);
+  const error = useSelector((state: RootState) => state?.teacher?.error);
+  const toast = useSelector((state: RootState) => state?.user?.toast);
+  const teacher = useSelector((state: RootState) => state?.teacher?.teacher);
+  const subjects =
+    useSelector((state: RootState) => state?.subject?.data) || [];
+  const dispatch = useDispatch();
   const init = {
-    code: "",
     fullName: "",
-    birthday: "",
+    birthday: moment().format("DD-MM-yyyy"),
     email: "",
-    phone: "",
-    classes: [1],
+    phoneNumber: "",
+    classes: [],
     gender: 0,
     username: "",
     password: "",
     class: "",
     confirmPassword: "",
     role: 0,
-    subjects: [0],
+    subjects: [],
   };
-
-  const classes = [
-    {
-      id: 1,
-      code: "CL001",
-      name: "Lớp thầy tuấn 4",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 2,
-      code: "CL001",
-      name: "Lớp thầy tuấn 3",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 3,
-      code: "CL001",
-      name: "Lớp thầy tuấn 2",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 4,
-      code: "CL001",
-      name: "Lớp thầy tuấn 1 ",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-  ];
 
   const formik = useFormik({
     initialValues: init,
-    validationSchema: classFormSchema,
-    onSubmit: (values) => {},
+    validationSchema: teacherFormSchema,
+    onSubmit: (values) => {
+      const value = {
+        ...values,
+        classes: values.classes.map((item) => {
+          return { id: item };
+        }),
+      };
+      isEdit
+        ? dispatch<any>(
+            editTeacher({
+              ...value,
+              role: { id: value.role },
+              id: data?.id,
+            })
+          )
+        : dispatch<any>(
+            createTeacher({
+              ...value,
+              role: { id: value.role },
+            })
+          );
+    },
   });
+
+  useEffect(() => {
+    if (success) {
+      dispatch(
+        setToast({
+          message: isEdit
+            ? "Chỉnh sửa giáo viên thành công."
+            : "Thêm giáo viên thành công.",
+          type: typeToast.SUCCESS,
+        })
+      );
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (toast.message) {
+      handleClose();
+    }
+  }, [toast]);
 
   useEffect(() => {
     formik.resetForm();
     if (open) {
+      dispatch<any>(getAllClass());
+      dispatch<any>(getSubjectList());
+      formik.setValues(init);
       if (isEdit) {
-        data.classes = data.classes.map((item: any) => item.id);
-        data.subjects = data.subjects.map((item: any) => item.id);
-        formik.setValues({ ...data, password: "", confirmPassword: "" });
-      } else {
-        formik.setValues(init);
+        dispatch<any>(getTeacher(data?.id));
       }
     } else {
       formik.setValues(init);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (teacher) {
+      const teacherData = {
+        ...teacher,
+        classes:
+          teacher.classes && teacher.classes.map((item: any) => item?.id),
+        subjects:
+          teacher.subjects && teacher.subjects.map((item: any) => item?.id),
+        role: teacher.role?.id,
+        isEdit: true,
+      };
+      formik.setValues(teacherData);
+    }
+  }, [teacher]);
 
   return (
     <Dialog
@@ -115,30 +153,21 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
         </ToggleButton>
       </DialogTitle>
       <DialogContent className={style.form_content}>
-        <div className="d-flex">
-          <FieldInput
-            name="code"
-            label="Mã nhân viên"
-            placeholder="Mã nhân viên"
-            value={formik.values.code}
-            onChange={formik.handleChange}
-            errorText={(formik.touched.code && formik.errors.code) || ""}
-            className="code w-240"
-            required
-          />
-          <FieldInput
-            name="username"
-            label="Tên đăng nhập"
-            placeholder="Tên đăng nhập"
-            value={formik.values.username}
-            onChange={formik.handleChange}
-            errorText={
-              (formik.touched.username && formik.errors.username) || ""
-            }
-            className="username ml-auto w-240"
-            required
-          />
-        </div>
+        <FieldInput
+          name="username"
+          label="Tên đăng nhập"
+          placeholder="Tên đăng nhập"
+          value={formik.values.username}
+          onChange={formik.handleChange}
+          errorText={
+            (formik.touched.username && formik.errors.username) ||
+            error.username ||
+            ""
+          }
+          className="username ml-auto "
+          required
+        />
+
         <br />
         <FieldInput
           name="fullName"
@@ -154,7 +183,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
         <SelectInput
           name="classes"
           label="Lớp học"
-          value={formik.values.classes}
+          value={formik.values.classes || []}
           multiple
           onChange={(e: any) => {
             formik.setFieldValue("classes", e.target.value);
@@ -162,8 +191,8 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
           errorText={(formik.touched.class && formik.errors.class) || ""}
         >
           {classes.map((item, index) => (
-            <MenuItem key={index} value={item.id}>
-              {item.name}
+            <MenuItem key={index} value={item?.id}>
+              {item.className}
             </MenuItem>
           ))}
         </SelectInput>
@@ -211,12 +240,14 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
             required
           />
           <FieldInput
-            name="phone"
+            name="phoneNumber"
             label="Số điện thoại"
             placeholder="Số điện thoại"
-            value={formik.values.phone}
+            value={formik.values.phoneNumber}
             onChange={formik.handleChange}
-            errorText={(formik.touched.phone && formik.errors.phone) || ""}
+            errorText={
+              (formik.touched.phoneNumber && formik.errors.phoneNumber) || ""
+            }
             className="phone ml-auto w-240"
             required
           />
@@ -226,7 +257,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
           <SelectInput
             name="subjects"
             label="Lớp học"
-            value={formik.values.subjects}
+            value={formik.values.subjects || []}
             multiple
             onChange={(e: any) => {
               formik.setFieldValue("subjects", e.target.value);
@@ -235,8 +266,8 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
             className=" w-240"
           >
             {subjects.map((item, index) => (
-              <MenuItem key={index} value={index}>
-                {item}
+              <MenuItem key={index} value={item?.id}>
+                {item.name}
               </MenuItem>
             ))}
           </SelectInput>
@@ -260,7 +291,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
           <FieldInput
             name="password"
             label="Mật khẩu"
-            placeholder="Số điện thoại"
+            placeholder="Mật khẩu"
             value={formik.values.password}
             onChange={formik.handleChange}
             errorText={
@@ -289,7 +320,12 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
         <Button onClick={handleClose} variant="outlined">
           Thoát
         </Button>
-        <Button onClick={() => {}} variant="contained">
+        <Button
+          onClick={() => {
+            formik.handleSubmit();
+          }}
+          variant="contained"
+        >
           {isEdit ? "Chỉnh sửa" : "Thêm mới"}
         </Button>
       </DialogActions>

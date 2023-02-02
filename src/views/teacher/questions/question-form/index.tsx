@@ -13,53 +13,121 @@ import { FormProps } from "../../../../shared/utils/inteface";
 import { Transition } from "../../../../shared/utils/transition";
 import style from "./question-form.module.scss";
 import { Close } from "@mui/icons-material";
-import {
-  answers,
-  levels,
-  questionTypes,
-  subjects,
-} from "../../../../shared/contants/question";
+import { answers, levels } from "../../../../shared/contants/question";
 import MathEquation from "../../../../components/math/math-equation";
 import { grey } from "@mui/material/colors";
 import { useFormik } from "formik";
 import FieldInput from "../../../../components/input";
-import { classFormSchema } from "../../../../shared/schema/class-schema";
 import SelectInput from "../../../../components/select";
 import QuestionAnswer from "../../../../components/question-answer";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/rootReducer";
+import { getSubjectList } from "../../../../features/subjectSlice";
+import { questionSchema } from "../../../../shared/schema/question-schema";
+import {
+  createQuestion,
+  editQuestion,
+  getQuestion,
+} from "../../../../features/questionSlice";
+import { setToast } from "../../../../features/userSlice";
+import { typeToast } from "../../../../shared/contants/toast";
 const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
   const { open, data, handleClose, isEdit } = props;
+  const subjects =
+    useSelector((state: RootState) => state?.subject?.data) || [];
+  const dispatch = useDispatch();
+  const toast = useSelector((state: RootState) => state?.user?.toast);
+  const success = useSelector((state: RootState) => state?.question?.isSuccess);
+  const question = useSelector((state: RootState) => state?.question?.question);
+  const [dataSuccess, setDataSuccess] = useState(true);
+
   const init = {
     content: "",
-    type: 1,
-    subject: 0,
-    level: 0,
-    choice_answers: [""],
-    correct_answers: [],
+    subject: "",
+    level: 1,
+    choiceAnswers: [""],
+    correctAnswer: 0,
     note: "",
   };
 
   const formik = useFormik({
     initialValues: init,
-    validationSchema: classFormSchema,
-    onSubmit: (values) => {},
+    validationSchema: questionSchema,
+    onSubmit: (values) => {
+      const value = {
+        ...values,
+        subject: { id: values.subject },
+      };
+      isEdit
+        ? dispatch<any>(
+            editQuestion({
+              ...value,
+
+              id: data.id,
+            })
+          )
+        : dispatch<any>(
+            createQuestion({
+              ...value,
+            })
+          );
+    },
   });
+
+  useEffect(() => {
+    if (toast.message) {
+      handleClose();
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    if (success) {
+      dispatch(
+        setToast({
+          message: isEdit
+            ? "Chỉnh sửa câu hỏi thành công."
+            : "Thêm mới câu hỏi  thành công.",
+          type: typeToast.SUCCESS,
+        })
+      );
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (question) {
+      const data = {
+        ...question,
+        subject: question.subject?.id,
+      };
+
+      formik.setValues(data);
+      setDataSuccess(true);
+    }
+  }, [question]);
 
   useEffect(() => {
     formik.resetForm();
     if (open) {
+      dispatch<any>(getSubjectList());
+      formik.setValues(init);
       if (isEdit) {
-        formik.setValues(data);
-      } else {
-        formik.setValues(init);
+        dispatch<any>(getQuestion(data.id));
+        setDataSuccess(false);
       }
     } else {
       formik.setValues(init);
     }
   }, [open]);
 
+  useEffect(() => {
+    if (subjects?.length) {
+      formik.setFieldValue("subject", subjects[0].id);
+    }
+  }, [subjects]);
+
   const handleChangeAnswer = (e: any) => {
-    formik.setFieldValue("choice_answers", e.choice_answers);
-    formik.setFieldValue("correct_answers", e.correct_answers);
+    formik.setFieldValue("choiceAnswers", e.choiceAnswers);
+    formik.setFieldValue("correctAnswer", e.correctAnswer);
   };
 
   return (
@@ -103,29 +171,15 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
           />
           <br />
           <SelectInput
-            name="type"
-            label="Loại câu hỏi"
-            value={formik.values.type}
-            onChange={formik.handleChange}
-            errorText={(formik.touched.type && formik.errors.type) || ""}
-          >
-            {questionTypes.map((text: string, index: number) => (
-              <MenuItem key={index} value={index}>
-                {text}
-              </MenuItem>
-            ))}
-          </SelectInput>
-          <br />
-          <SelectInput
             name="subject"
             label="Môn học"
             value={formik.values.subject}
             onChange={formik.handleChange}
             errorText={(formik.touched.subject && formik.errors.subject) || ""}
           >
-            {subjects.map((text: string, index: number) => (
-              <MenuItem key={index} value={index}>
-                {text}
+            {subjects?.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.name}
               </MenuItem>
             ))}
           </SelectInput>
@@ -138,31 +192,33 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
             data={levels}
             errorText={(formik.touched.level && formik.errors.level) || ""}
           >
-            {subjects.map((text: string, index: number) => (
-              <MenuItem key={index} value={index}>
+            {levels?.map((text: string, index: number) => (
+              <MenuItem key={index + 1} value={index + 1}>
                 {text}
               </MenuItem>
             ))}
           </SelectInput>
           <br />
-          {((formik.values.choice_answers.length > 1 && isEdit) || !isEdit) &&
-            !formik.values.type &&
-            open && (
-              <>
-                <QuestionAnswer
-                  name="answer"
-                  label="Đáp án"
-                  value={formik.values.correct_answers}
-                  onChange={handleChangeAnswer}
-                  data={formik.values.choice_answers}
-                  errorText={
-                    (formik.touched.subject && formik.errors.subject) || ""
-                  }
-                  isEdit={true}
-                />
-                <br />
-              </>
-            )}
+
+          {open && dataSuccess && (
+            <>
+              <QuestionAnswer
+                name="answer"
+                label="Đáp án"
+                value={formik.values.correctAnswer}
+                onChange={handleChangeAnswer}
+                data={formik.values.choiceAnswers}
+                errorText={
+                  formik.touched.choiceAnswers &&
+                  formik.errors.choiceAnswers?.length
+                    ? "Đáp án không được để trống"
+                    : ""
+                }
+                isEdit={true}
+              />
+              <br />
+            </>
+          )}
           <FieldInput
             name="note"
             label="Lời giải"
@@ -179,23 +235,18 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
           <div className={style.title}>Đề bài:</div>
           {open ? <MathEquation value={formik.values.content} /> : ""}
 
-          {!formik.values.type && (
-            <>
-              <ol type="A" style={{ padding: "0 16px" }}>
-                {formik.values?.choice_answers.map(
-                  (answer: string, index: number) => (
-                    <li key={index}>
-                      {open ? <MathEquation value={answer} /> : ""}
-                    </li>
-                  )
-                )}
-              </ol>
-              <div className={style.title}>Đáp án:</div>
-              {formik.values?.correct_answers
-                .map((answer: number) => answers[answer])
-                .join(",")}{" "}
-            </>
-          )}
+          <ol type="A" style={{ padding: "0 16px" }}>
+            {formik.values?.choiceAnswers?.map(
+              (answer: string, index: number) => (
+                <li key={index}>
+                  {open ? <MathEquation value={answer} /> : ""}
+                </li>
+              )
+            )}
+          </ol>
+          <div className={style.title}>Đáp án:</div>
+          {answers[formik.values?.correctAnswer]}
+
           <div className={style.title}>Lời giải:</div>
           {formik.values.note}
         </div>
@@ -204,7 +255,12 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
         <Button onClick={handleClose} variant="outlined">
           Thoát
         </Button>
-        <Button onClick={() => {}} variant="contained">
+        <Button
+          onClick={() => {
+            formik.handleSubmit();
+          }}
+          variant="contained"
+        >
           {isEdit ? "Chỉnh sửa" : "Thêm mới"}
         </Button>
       </DialogActions>

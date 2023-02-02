@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Button, FormLabel, MenuItem, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Grid from "../../../../components/grid";
@@ -193,7 +194,7 @@ const StudentList: React.FC = (): JSX.Element => {
           >
             <MenuItem key={0} value={0}>
               --
-            </MenuItem>{" "}
+            </MenuItem>
             {classes.map((i) => (
               <MenuItem key={i.id} value={i.id}>
                 {i.className}
@@ -216,7 +217,7 @@ const StudentList: React.FC = (): JSX.Element => {
         data={data}
         sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
         action={{ edit: true, delete: true }}
-        message="Bạn có muốn học sinh này?"
+        message="Bạn có muốn xóa học sinh này?"
         onDelete={(e: any) => {
           dispatch<any>(deleteStudent(e.id));
         }}
