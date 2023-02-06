@@ -29,3 +29,7 @@ export async function getClassByID(id: string): Promise<any> {
 export async function updateClass(data: classForm): Promise<any> {
   return axios().post(`class/${data.id}`, data);
 }
+
+export async function getClassesByStudent(): Promise<any> {
+  return axios().post("user-exam/class/list");
+}

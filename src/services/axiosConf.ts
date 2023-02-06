@@ -3,13 +3,7 @@
  */
 import axios from "axios";
 import { store } from "../app/store";
-import {
-  logout,
-  setAccessToken,
-  setLoading,
-  setToast,
-  setToken,
-} from "../features/userSlice";
+import { logout, setLoading, setToast, setToken } from "../features/userSlice";
 import { typeToast } from "../shared/contants/toast";
 import { getToken } from "./authService";
 
@@ -72,6 +66,7 @@ const instance = () => {
             type: typeToast.ERROR,
           })
         );
+        return Promise.reject({ ...error });
       } else if (error?.response?.status === 401) {
         localStorage.setItem("lastActivity", timeActivity.toString());
         const originalRequest = error.config;

@@ -5,6 +5,7 @@ import studentReducer from "../features/studentSlice";
 import teacherReducer from "../features/teacherSlice";
 import subjectReducer from "../features/subjectSlice";
 import questionReducer from "../features/questionSlice";
+import competitionReducer from "../features/competitionSlice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer } from "redux-persist";
 
@@ -21,6 +22,7 @@ const combinedReducer = combineReducers({
   teacher: teacherReducer,
   subject: subjectReducer,
   question: questionReducer,
+  competition: competitionReducer,
 });
 
 export type RootState = ReturnType<typeof combinedReducer>;

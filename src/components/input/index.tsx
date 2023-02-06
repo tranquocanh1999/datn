@@ -16,6 +16,7 @@ const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
     number = false,
     row,
     required,
+    disabled,
   } = props;
   return (
     <div className={className}>
@@ -49,6 +50,7 @@ const FieldInput: React.FC<InputProp> = (props): JSX.Element => {
         rows={row}
         placeholder={placeholder && placeholder}
         value={value ?? ""}
+        disabled={disabled}
         onBlur={(e) => {
           e.target.value = e.target.value.trim();
           if (number) {

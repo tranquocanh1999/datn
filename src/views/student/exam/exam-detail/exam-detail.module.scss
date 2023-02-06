@@ -1,0 +1,106 @@
+.header {
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px;
+
+    h2 {
+      margin: 0;
+    }
+
+    .time {
+      margin-left: 100px;
+    }
+
+    .status {
+      margin-left: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+.exam {
+  display: flex;
+  align-items: center;
+}
+
+.wrapper {
+  .partList {
+    &::marker {
+      font-size: 20px;
+    }
+
+    .partTitle {
+      font-weight: 500;
+      font-size: 20px;
+      text-transform: uppercase;
+    }
+
+    .questionList {
+      .questionIndex {
+        font-weight: 500;
+        margin-right: 4px;
+      }
+
+      .questionTitle {
+        font-weight: 500;
+        font-size: 20px;
+        text-transform: uppercase;
+      }
+
+      .questionCorrect {
+        color: #00f477;
+      }
+    }
+  }
+}
+
+.examNotStart {
+  width: 100%;
+  text-align: center;
+  font-weight: 500px;
+  font-size: 24px;
+  margin-top: 250px;
+}
+
+.form {
+  .formContent {
+    padding-bottom: 48px;
+    display: flex;
+
+    .formLeft {
+      width: 250px;
+      border-right: 1px solid black;
+
+      .statusItem {
+        height: 25px;
+        width: 200px;
+        margin: 0 0 8px 16px;
+        color: black;
+      }
+
+      .active {
+        background-color: #00ff84;
+      }
+    }
+
+    .formRight {
+      .questionAnswer {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+  .formBottom {
+    border-top: 1px solid black;
+    position: absolute;
+    bottom: 0;
+    width: calc(100% - 330px);
+    display: flex;
+    justify-content: end;
+    background-color: white;
+    padding: 0 32px 16px 0;
+  }
+}

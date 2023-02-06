@@ -12,6 +12,7 @@ import NotFound from "../views/common/not-found";
 import StudentList from "../views/teacher/student/student-list";
 import UserList from "../views/teacher/user/user-list";
 import ExamList from "../views/teacher/exam/exam-list";
+import ExamDetail from "../views/teacher/exam/exam-detail";
 
 const TeacherRoutes: React.FC = (): JSX.Element => {
   return (
@@ -24,7 +25,7 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
             <PrivateRoute
               path="/class"
               Component={ClassList}
-              requiredRoles={[role.TEACHER]}
+              requiredRoles={[role.TEACHER, role.ADMIN]}
             />
           }
         />
@@ -34,7 +35,7 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
             <PrivateRoute
               path="/questions"
               Component={QuestionList}
-              requiredRoles={[role.TEACHER]}
+              requiredRoles={[role.TEACHER, role.ADMIN]}
             />
           }
         />
@@ -44,7 +45,7 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
             <PrivateRoute
               path="/students"
               Component={StudentList}
-              requiredRoles={[role.TEACHER]}
+              requiredRoles={[role.TEACHER, role.ADMIN]}
             />
           }
         />
@@ -54,17 +55,27 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
             <PrivateRoute
               path="/users"
               Component={UserList}
-              requiredRoles={[role.TEACHER]}
+              requiredRoles={[role.TEACHER, role.ADMIN]}
             />
           }
-        />{" "}
+        />
         <Route
           path="/exams"
           element={
             <PrivateRoute
               path="/exams"
               Component={ExamList}
-              requiredRoles={[role.TEACHER]}
+              requiredRoles={[role.TEACHER, role.ADMIN]}
+            />
+          }
+        />
+        <Route
+          path="/exam/:id"
+          element={
+            <PrivateRoute
+              path="/exam/:id"
+              Component={ExamDetail}
+              requiredRoles={[role.TEACHER, role.ADMIN]}
             />
           }
         />

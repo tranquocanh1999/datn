@@ -10,6 +10,10 @@ export async function signIn(username: string, password: string): Promise<any> {
   });
 }
 
+export async function getUser(): Promise<any> {
+  return axiosCustom().get("auth/info");
+}
+
 export async function signOut(tokenID: string): Promise<any> {
   return axiosCustom().get("auth/logout", {
     params: {

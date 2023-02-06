@@ -17,9 +17,11 @@ const PrivateRoute: React.FC<IPrivateRouteProps> = (props): JSX.Element => {
   const { path, Component, requiredRoles = [] } = props;
   //Should replace by get user role (from storage, redux store or anything...) localStorage || cookies
   const userRole = useSelector((state: RootState) => state?.user?.role);
-
+  const role = useSelector((state: RootState) => state?.user?.role);
   //Check user role with route's required roles
-  const canAccessWithRoles = requiredRoles.includes(userRole);
+  const canAccessWithRoles = requiredRoles.includes(
+    userRole !== undefined && userRole !== null ? userRole : 2
+  );
 
   //Should replace by get logged in status
   //const isAuthenticated = true;

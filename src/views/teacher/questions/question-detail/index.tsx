@@ -16,12 +16,7 @@ import { FormProps } from "../../../../shared/utils/inteface";
 import { Transition } from "../../../../shared/utils/transition";
 import style from "./question-detail.module.scss";
 import { Close } from "@mui/icons-material";
-import {
-  answers,
-  levels,
-  questionTypes,
-  subjects,
-} from "../../../../shared/contants/question";
+import { answers, levels } from "../../../../shared/contants/question";
 import MathEquation from "../../../../components/math/math-equation";
 const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
   const { open, data, handleClose } = props;
@@ -51,23 +46,25 @@ const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
           aria-label="simple table"
         >
           <TableBody>
-            <TableRow>
+            {/* <TableRow>
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
                 <div className={style.title}>Thể loại</div>
               </TableCell>
               <TableCell> {questionTypes[data?.type]}</TableCell>
-            </TableRow>
+            </TableRow> */}
             <TableRow>
-              <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
+              <TableCell
+                sx={{ borderRight: 1, borderColor: "grey.300", width: "100px" }}
+              >
                 <div className={style.title}>Môn học</div>
               </TableCell>
-              <TableCell> {subjects[data?.subject]}</TableCell>
+              <TableCell> {data?.subject.name}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
                 <div className={style.title}>Độ khó</div>
               </TableCell>
-              <TableCell> {levels[data?.level]}</TableCell>
+              <TableCell> {levels[data?.level - 1]}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
@@ -83,7 +80,7 @@ const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
               </TableCell>
               <TableCell>
                 <ol type="A" style={{ padding: "0 16px" }}>
-                  {data?.choice_answers.map((answer: string, index: number) => (
+                  {data?.choiceAnswers?.map((answer: string, index: number) => (
                     <li key={index}>
                       <MathEquation value={answer} />
                     </li>
@@ -95,11 +92,7 @@ const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
                 <div className={style.title}>Đáp án đúng</div>
               </TableCell>
-              <TableCell>
-                {data?.correct_answers
-                  .map((answer: number) => answers[answer])
-                  .join(",")}
-              </TableCell>
+              <TableCell> {answers[data?.correctAnswer]}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>

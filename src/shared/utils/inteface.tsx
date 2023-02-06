@@ -23,6 +23,7 @@ export interface InputProp {
   className?: string;
   onChange?: any;
   number?: boolean;
+  disabled?: boolean;
   row?: number;
   required?: boolean;
   data?: any;

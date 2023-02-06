@@ -2,19 +2,20 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { role } from "../shared/contants/role";
 import { AppThunk } from "../app/store";
-import { signIn, signOut } from "../services/authService";
+import { getUser, signIn, signOut } from "../services/authService";
 
 interface UserState {
-  role: number;
+  role?: number | null;
   loading?: boolean;
   accessToken?: string;
   refreshToken?: string;
   idToken?: string;
   toast?: any;
+  user?: any;
 }
 
 const initialState = {
-  role: 0,
+  role: null,
   loading: false,
   accessToken: "",
   refreshToken: "",
@@ -23,6 +24,7 @@ const initialState = {
     message: "",
     type: "",
   },
+  user: {},
 } as UserState;
 
 const userSlice = createSlice({
@@ -30,12 +32,17 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<UserState>) {
-      state.role = action.payload.role;
+      state.user = action.payload.user;
+      state.role = action.payload.user.role.id;
     },
     setToken(state, action: any) {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       state.idToken = action.payload.id;
+    },
+    clearUser(state) {
+      state.user = {};
+      state.role = null;
     },
     setAccessToken(state, action: any) {
       state.accessToken = action.payload;
@@ -55,7 +62,8 @@ export const login =
     try {
       let response = await signIn(form.username, form.password);
       dispatch(setToken(response.data));
-      dispatch(setUser({ role: role.TEACHER }));
+      let user = await getUser();
+      dispatch(setUser({ user: user.data }));
     } catch (error: any) {}
   };
 
@@ -64,10 +72,16 @@ export const logout =
   async (dispatch) => {
     try {
       dispatch(setToken(await signOut(idToken)));
-      dispatch(setUser({ role: 0 }));
+      dispatch(clearUser());
     } catch (error: any) {}
   };
 
-export const { setUser, setToken, setLoading, setToast, setAccessToken } =
-  userSlice.actions;
+export const {
+  setUser,
+  setToken,
+  setLoading,
+  setToast,
+  setAccessToken,
+  clearUser,
+} = userSlice.actions;
 export default userSlice.reducer;

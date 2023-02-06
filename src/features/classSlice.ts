@@ -5,6 +5,7 @@ import {
   classForm,
   getAll,
   getClassByID,
+  getClassesByStudent,
   getListClass,
   removeClass,
   updateClass,
@@ -86,6 +87,21 @@ export const getClass =
 export const getAllClass = (): AppThunk => async (dispatch) => {
   try {
     let response = await getAll();
+    dispatch(setAllData(response.data));
+  } catch (error: any) {
+    dispatch(
+      setToast({
+        message: error.message,
+        type: typeToast.ERROR,
+      })
+    );
+    dispatch(setClassLoading(true));
+  }
+};
+
+export const getAllClassByStudent = (): AppThunk => async (dispatch) => {
+  try {
+    let response = await getClassesByStudent();
     dispatch(setAllData(response.data));
   } catch (error: any) {
     dispatch(

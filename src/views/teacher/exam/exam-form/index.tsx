@@ -16,63 +16,97 @@ import style from "./exam-form.module.scss";
 import { Close } from "@mui/icons-material";
 import { useFormik } from "formik";
 import FieldInput from "../../../../components/input";
-import { classFormSchema } from "../../../../shared/schema/class-schema";
 import SelectInput from "../../../../components/select";
-import DateTimeInput from "../../../../components/date-picker/date-time";
-import TimeInput from "../../../../components/date-picker/time";
 import { levels } from "../../../../shared/contants/question";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../app/rootReducer";
+import { typeToast } from "../../../../shared/contants/toast";
+import { setToast } from "../../../../features/userSlice";
+import { getSubjectList } from "../../../../features/subjectSlice";
+import { getAllClass, getClasses } from "../../../../features/classSlice";
+import { competitionFormSchema } from "../../../../shared/schema/competition-schema";
+import { createCompetition } from "../../../../features/competitionSlice";
 
 const ExamForm: React.FC<FormProps> = (props): JSX.Element => {
   const { open, data, handleClose, isEdit } = props;
   const init = {
     code: "",
     title: "",
-    startTime: "",
-    period: "",
-    endTime: "",
-    class: { id: 1, code: "ABC", name: "Lớp thầy Huấn 4" },
+    time: 15,
+    subject: "",
+    numberOfExam: 1,
+    classroom: "",
+    hasQuestionLv1: false,
+    numberOfQuestionLv1: 0,
+    hasQuestionLv2: false,
+    numberOfQuestionLv2: 0,
+    hasQuestionLv3: false,
+    numberOfQuestionLv3: 0,
+    hasQuestionLv4: false,
+    numberOfQuestionLv4: 0,
   };
+  const subjects =
+    useSelector((state: RootState) => state?.subject?.data) || [];
 
-  const classes = [
-    {
-      id: 1,
-      code: "CL001",
-      name: "Lớp thầy tuấn 4",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 2,
-      code: "CL001",
-      name: "Lớp thầy tuấn 3",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 3,
-      code: "CL001",
-      name: "Lớp thầy tuấn 2",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-    {
-      id: 4,
-      code: "CL001",
-      name: "Lớp thầy tuấn 1 ",
-      teacher_name: "Huấn hoa hồng",
-      numberOfStudent: 35,
-      description: "đây là mô tả",
-    },
-  ];
+  const classes =
+    useSelector((state: RootState) => state?.class?.allData) || [];
+  const toast = useSelector((state: RootState) => state?.user?.toast);
+  const success = useSelector(
+    (state: RootState) => state?.competition?.isSuccess
+  );
 
   const formik = useFormik({
     initialValues: init,
-    validationSchema: classFormSchema,
-    onSubmit: (values) => {},
+    validationSchema: competitionFormSchema,
+    onSubmit: (values) => {
+      let data = {
+        ...values,
+        classroom: { id: values.classroom },
+        subject: { id: values.subject },
+      };
+      dispatch<any>(createCompetition(data));
+    },
   });
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (toast.message) {
+      handleClose();
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    if (success) {
+      dispatch(
+        setToast({
+          message: "Thêm mới bài thi thành công.",
+          type: typeToast.SUCCESS,
+        })
+      );
+    }
+  }, [success]);
+
+  useEffect(() => {
+    formik.resetForm();
+    if (open) {
+      dispatch<any>(getSubjectList());
+      dispatch<any>(getAllClass());
+      formik.setValues(init);
+    } else {
+      formik.setValues(init);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (subjects?.length) {
+      formik.setFieldValue("subject", subjects[0].id);
+    }
+  }, [subjects]);
+
+  useEffect(() => {
+    if (classes?.length) {
+      formik.setFieldValue("classroom", classes[0].id);
+    }
+  }, [classes]);
 
   useEffect(() => {
     formik.resetForm();
@@ -99,7 +133,7 @@ const ExamForm: React.FC<FormProps> = (props): JSX.Element => {
       maxWidth={"xl"}
     >
       <DialogTitle className={style.form_title}>
-        <div>{isEdit ? "Chỉnh sửa học sinh" : "Thêm mới học sinh"}</div>
+        <div> Thêm mới bài thi</div>
         <ToggleButton
           value="left"
           aria-label="left aligned"
@@ -130,100 +164,100 @@ const ExamForm: React.FC<FormProps> = (props): JSX.Element => {
           className="username"
           required
         />
-        <br />
-        <SelectInput
-          name="class"
-          label="Lớp học"
-          value={formik.values.class.id}
-          onChange={(e: any) => {
-            formik.setFieldValue("class", { id: e.target.value });
-          }}
-          errorText={""}
-        >
-          {classes.map((item, index) => (
-            <MenuItem key={index} value={item.id}>
-              {item.name}
-            </MenuItem>
-          ))}
-        </SelectInput>
         <br />{" "}
         <div className="d-flex">
           <SelectInput
-            name="period"
+            name="class"
+            label="Lớp học"
+            value={formik.values.classroom}
+            onChange={formik.handleChange}
+            errorText={""}
+            className="w-240"
+          >
+            {classes.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.className}
+              </MenuItem>
+            ))}
+          </SelectInput>
+          <SelectInput
+            name="subject"
+            label="Lớp học"
+            value={formik.values.subject}
+            onChange={formik.handleChange}
+            errorText={""}
+            className="ml-auto w-240"
+          >
+            {subjects.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </SelectInput>
+        </div>
+        <br />
+        <div className="d-flex">
+          <SelectInput
+            name="time"
             label="Thời gian làm bài"
-            value={formik.values.period}
-            onChange={(e: any) => {
-              formik.setFieldValue("period", e.target.value);
-            }}
+            value={formik.values.time}
+            onChange={formik.handleChange}
             className="startTime  w-240"
             errorText={""}
           >
             {[15, 45, 60, 120].map((item, index) => (
-              <MenuItem key={index} value={index}>
+              <MenuItem key={index} value={item}>
                 {item} phút
               </MenuItem>
             ))}
           </SelectInput>
           <FieldInput
-            name="title"
+            name="numberOfExam"
             label="Tổng số đề thi"
             placeholder="Tổng số đề thi"
-            value={formik.values.title}
+            value={formik.values.numberOfExam}
             onChange={formik.handleChange}
-            errorText={(formik.touched.title && formik.errors.title) || ""}
+            errorText={
+              (formik.touched.numberOfExam && formik.errors.numberOfExam) || ""
+            }
             className="username ml-auto w-240"
             type="number"
             required
           />
         </div>
         <br />
-        <div className="d-flex">
-          <DateTimeInput
-            name="startTime"
-            label="Thời gian bắt đầu"
-            placeholder="Thời gian bắt đầu"
-            value={formik.values.startTime || ""}
-            onChange={(e: string) => {
-              formik.setFieldValue("startTime", e);
-            }}
-            errorText={
-              (formik.touched.startTime && formik.errors.startTime) || ""
-            }
-            className="startTime  w-240"
-            required
-          />
-          <DateTimeInput
-            name="endTime"
-            label="Thời gian kết thúc"
-            placeholder="Thời gian kết thúc"
-            value={formik.values.endTime || ""}
-            onChange={(e: string) => {
-              formik.setFieldValue("endTime", e);
-            }}
-            errorText={(formik.touched.endTime && formik.errors.endTime) || ""}
-            className="endTime ml-auto  w-240"
-            required
-          />
-        </div>
-        <br />
-        {levels.map((item) => (
-          <>
-            <div className="d-flex">
-              <Checkbox checked className={style.checkbox} onClick={() => {}} />
+        {levels.map((item, index) => (
+          <div key={index}>
+            <div className={style.question}>
+              <Checkbox
+                checked={(formik.values as any)[`hasQuestionLv${index + 1}`]}
+                className={style.checkbox}
+                onClick={() => {
+                  formik.setFieldValue(
+                    `hasQuestionLv${index + 1}`,
+                    !(formik.values as any)[`hasQuestionLv${index + 1}`]
+                  );
+                }}
+              />
               {item}
               <FieldInput
-                name="title"
+                name={`numberOfQuestionLv${index + 1}`}
                 label=""
+                disabled={!(formik.values as any)[`hasQuestionLv${index + 1}`]}
                 placeholder="Tổng số câu hỏi"
-                value={formik.values.title}
+                value={(formik.values as any)[`numberOfQuestionLv${index + 1}`]}
                 onChange={formik.handleChange}
-                errorText={(formik.touched.title && formik.errors.title) || ""}
+                errorText={
+                  ((formik.touched as any)[`numberOfQuestionLv${index + 1}`] &&
+                    (formik.errors as any)[`numberOfQuestionLv${index + 1}`]) ||
+                  ""
+                }
                 className="username ml-auto w-240"
                 type="number"
               />
             </div>
             <br />
-          </>
+          </div>
         ))}
         <br />
       </DialogContent>
@@ -231,8 +265,13 @@ const ExamForm: React.FC<FormProps> = (props): JSX.Element => {
         <Button onClick={handleClose} variant="outlined">
           Thoát
         </Button>
-        <Button onClick={() => {}} variant="contained">
-          {isEdit ? "Chỉnh sửa" : "Thêm mới"}
+        <Button
+          onClick={() => {
+            formik.handleSubmit();
+          }}
+          variant="contained"
+        >
+          Thêm mới
         </Button>
       </DialogActions>
     </Dialog>

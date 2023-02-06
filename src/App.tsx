@@ -6,6 +6,7 @@ import { RootState } from "./app/rootReducer";
 import { role } from "./shared/contants/role";
 import AuthRoutes from "./routes/auth-routes";
 import TeacherRoutes from "./routes/teacher-routes";
+import StudentRoutes from "./routes/student-routes";
 
 function App() {
   const [openToast, setOpenToast] = useState(false);
@@ -26,12 +27,12 @@ function App() {
 
   return (
     <>
-      {roleUser === 0 && <AuthRoutes />}
-      {roleUser === role.TEACHER && <TeacherRoutes />}
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={open}
-      >
+      {roleUser === null && <AuthRoutes />}
+      {(roleUser === role.TEACHER || roleUser === role.ADMIN) && (
+        <TeacherRoutes />
+      )}
+      {roleUser === role.STUDENT && <StudentRoutes />}
+      <Backdrop sx={{ color: "#fff", zIndex: 9999 }} open={open}>
         <CircularProgress color="inherit" />
       </Backdrop>
       <Snackbar

@@ -8,6 +8,7 @@ import {
   removeQuestion,
   updateQuestion,
 } from "../services/questionService";
+import { levels } from "../shared/contants/question";
 import { typeToast } from "../shared/contants/toast";
 import { filter } from "../shared/utils/inteface";
 import { setToast } from "./userSlice";
@@ -94,6 +95,7 @@ export const createQuestion =
     try {
       dispatch(setError({ field: "username", value: "" }));
       dispatch(setQuestionSuccess(false));
+
       await addQuestion(data);
       dispatch(setQuestionLoading(true));
       dispatch(setQuestionSuccess(true));

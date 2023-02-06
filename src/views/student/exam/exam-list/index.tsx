@@ -10,7 +10,6 @@ import {
 import React, { useEffect, useState } from "react";
 import Grid from "../../../../components/grid";
 import style from "./exam-list.module.scss";
-import UserForm from "../exam-form";
 import { examStatus } from "../../../../shared/contants/exam";
 import { GridValueGetterParams } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,10 +17,14 @@ import { RootState } from "../../../../app/rootReducer";
 import {
   deleteCompetition,
   getCompetitions,
+  getCompetitionsByStudent,
   setCompetitionLoading,
 } from "../../../../features/competitionSlice";
 import { getSubjectList } from "../../../../features/subjectSlice";
-import { getAllClass } from "../../../../features/classSlice";
+import {
+  getAllClass,
+  getAllClassByStudent,
+} from "../../../../features/classSlice";
 import { useNavigate } from "react-router-dom";
 
 const ExamList: React.FC = (): JSX.Element => {
@@ -91,6 +94,12 @@ const ExamList: React.FC = (): JSX.Element => {
         );
       },
     },
+    {
+      field: "degree",
+      headerName: "Kết quả",
+      sortable: false,
+      width: 100,
+    },
   ];
   const isLoading = useSelector(
     (state: RootState) => state?.competition?.isLoading
@@ -120,7 +129,7 @@ const ExamList: React.FC = (): JSX.Element => {
   useEffect(() => {
     dispatch(setCompetitionLoading(true));
     dispatch<any>(getSubjectList());
-    dispatch<any>(getAllClass());
+    dispatch<any>(getAllClassByStudent());
   }, []);
 
   useEffect(() => {
@@ -160,7 +169,7 @@ const ExamList: React.FC = (): JSX.Element => {
             }
           : undefined,
       };
-      dispatch<any>(getCompetitions(param));
+      dispatch<any>(getCompetitionsByStudent(param));
     }
   }, [isLoading]);
 
@@ -246,11 +255,8 @@ const ExamList: React.FC = (): JSX.Element => {
         columns={columns}
         data={data}
         sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
-        action={{ edit: false, delete: true }}
-        message="Bạn có muốn xóa bài thi này?"
-        onDelete={(e: any) => {
-          dispatch<any>(deleteCompetition(e.id));
-        }}
+        action={{ edit: false, delete: false }}
+        message=""
         isDisableDelete={isDisableDelete}
         initialState={{}}
         onFilter={(e: any) => {
@@ -268,15 +274,6 @@ const ExamList: React.FC = (): JSX.Element => {
       >
         Thêm mới
       </Button>
-
-      <UserForm
-        open={isOpenForm}
-        isEdit={isEdit}
-        handleClose={() => {
-          setIsEdit(false);
-          setIsOpenForm(false);
-        }}
-      />
     </div>
   );
 };

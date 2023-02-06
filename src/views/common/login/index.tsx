@@ -1,13 +1,15 @@
-import React from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect } from "react";
 import FieldInput from "../../../components/input";
 import { Button } from "@mui/material";
 import { useFormik } from "formik";
 
 import "./login.scss";
 import { loginSchema } from "../../../shared/schema/login-schema";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../../features/userSlice";
 import { useNavigate } from "react-router-dom";
+import { RootState } from "../../../app/rootReducer";
 const Login: React.FC = (): JSX.Element => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -19,9 +21,14 @@ const Login: React.FC = (): JSX.Element => {
     validationSchema: loginSchema,
     onSubmit: async (values) => {
       await dispatch<any>(login(values));
-      navigate("");
     },
   });
+
+  const user = useSelector((state: RootState) => state?.user?.user);
+
+  useEffect(() => {
+    if (user && Object.getOwnPropertyNames(user).length !== 0) navigate("");
+  }, [user]);
 
   return (
     <div className="login">

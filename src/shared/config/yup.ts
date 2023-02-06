@@ -24,9 +24,9 @@ yup.setLocale({
   // use functions to generate an error object that includes the value from the schema
   number: {
     min: ({ min, label }) => {
-      return `${label} phải nhập tối thiểu ${min} kí tự`;
+      return `${label} không nhỏ hơn ${min}`;
     },
-    max: ({ max, label }) => `${label} không được nhập quá ${max} kí tự`,
+    max: ({ max, label }) => `${label} không quá ${max}`,
   },
 });
 
