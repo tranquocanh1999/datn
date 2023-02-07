@@ -6,7 +6,7 @@ import style from "./index.module.scss";
 import { Edit, DeleteOutline } from "@mui/icons-material";
 import { red, grey } from "@mui/material/colors";
 import { GridProp } from "../../shared/utils/inteface";
-import DeleteDialog from "../confirm";
+import DeleteDialog from "../confirm/delete-dialog";
 
 const Grid: React.FC<GridProp> = (props): JSX.Element => {
   const {

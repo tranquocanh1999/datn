@@ -5,8 +5,10 @@ import {
   competitionForm,
   getCompetitionExamByStudent,
   getCompetitionExams,
+  getExamStudents,
   getListCompetitionByStudent,
   startExam,
+  submitExam,
 } from "../services/competitionService";
 import {
   addCompetition,
@@ -27,6 +29,7 @@ interface CompetitionState {
   total: number;
   exams: any;
   exam: any;
+  students: any;
 }
 
 const initialState = {
@@ -38,6 +41,7 @@ const initialState = {
   total: 0,
   exams: [],
   exam: {},
+  students: [],
 } as CompetitionState;
 
 const competitionSlice = createSlice({
@@ -48,6 +52,9 @@ const competitionSlice = createSlice({
       state.data = action.payload.data;
       state.total = action.payload.totalElement;
       state.isLoading = false;
+    },
+    setStudents(state, action: any) {
+      state.students = action.payload;
     },
     setExams(state, action: any) {
       state.exams = action.payload.data;
@@ -151,12 +158,46 @@ export const getCompetitionExamById =
     }
   };
 
+export const getStudentList =
+  (id: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      let response = await getExamStudents(id);
+      dispatch(setStudents(response.data));
+    } catch (error: any) {
+      dispatch(
+        setToast({
+          message: error.message,
+          type: typeToast.ERROR,
+        })
+      );
+      dispatch(setCompetitionLoading(true));
+    }
+  };
+
 export const examStart =
   (id: string): AppThunk =>
   async (dispatch) => {
     try {
       await startExam(id);
       dispatch(getCompetitionExamById(id));
+    } catch (error: any) {
+      dispatch(
+        setToast({
+          message: error.message,
+          type: typeToast.ERROR,
+        })
+      );
+      dispatch(setCompetitionLoading(true));
+    }
+  };
+
+export const examSubmit =
+  (idExam: string, idCompetition: string, data: any): AppThunk =>
+  async (dispatch) => {
+    try {
+      await submitExam(idExam, data);
+      dispatch(getCompetitionExamById(idCompetition));
     } catch (error: any) {
       dispatch(
         setToast({
@@ -225,6 +266,7 @@ export const {
   setError,
   setExams,
   setStatus,
+  setStudents,
   setExam,
 } = competitionSlice.actions;
 export default competitionSlice.reducer;

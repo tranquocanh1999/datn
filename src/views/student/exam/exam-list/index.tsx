@@ -264,16 +264,6 @@ const ExamList: React.FC = (): JSX.Element => {
         }}
         total={total}
       />
-      <Button
-        sx={{ marginTop: "16px" }}
-        onClick={() => {
-          setIsEdit(false);
-          setIsOpenForm(true);
-        }}
-        variant="contained"
-      >
-        Thêm mới
-      </Button>
     </div>
   );
 };

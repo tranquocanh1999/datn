@@ -31,5 +31,5 @@ export async function updateClass(data: classForm): Promise<any> {
 }
 
 export async function getClassesByStudent(): Promise<any> {
-  return axios().post("user-exam/class/list");
+  return axios().post("student-exam/class/list");
 }

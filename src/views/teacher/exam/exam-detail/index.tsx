@@ -22,6 +22,7 @@ import { examStatus } from "../../../../shared/contants/exam";
 import style from "./exam-detail.module.scss";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { levels } from "../../../../shared/contants/question";
+import StudentGrid from "./grid-student";
 
 const ExamDetail: React.FC = (): JSX.Element => {
   const params = useParams();
@@ -195,9 +196,7 @@ const ExamDetail: React.FC = (): JSX.Element => {
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-              eget.
+              <StudentGrid id={params.id || ""} />
             </Typography>
           </AccordionDetails>
         </Accordion>

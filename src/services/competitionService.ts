@@ -48,13 +48,21 @@ export async function changeStatus(id: string, status: number): Promise<any> {
 }
 
 export async function getListCompetitionByStudent(param: filter): Promise<any> {
-  return axios().post("user-exam/list", param);
+  return axios().post("student-exam/list", param);
 }
 
 export async function getCompetitionExamByStudent(id: string): Promise<any> {
-  return axios().get(`user-exam/exams/${id}`);
+  return axios().get(`student-exam/exams/${id}`);
 }
 
 export async function startExam(id: string): Promise<any> {
-  return axios().get(`user-exam/exam/start/${id}`);
+  return axios().get(`student-exam/exam/start/${id}`);
+}
+
+export async function submitExam(id: string, data: any): Promise<any> {
+  return axios().post(`student-exam/exam/success/${id}`, data);
+}
+
+export async function getExamStudents(id: string): Promise<any> {
+  return axios().get(`student-exam/exam/student/${id}`);
 }
