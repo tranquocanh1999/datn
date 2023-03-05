@@ -3,7 +3,12 @@ import yup from "../config/yup";
 export const teacherFormSchema = yup.object({
   username: yup.string().label("Tên đăng nhập").max(100).required(),
   fullName: yup.string().label("Tên học sinh").max(255).required(),
-  phoneNumber: yup.string().label("Số điện thoại").max(10).required(),
+  phoneNumber: yup
+    .string()
+    .label("Số điện thoại")
+    .max(10)
+    .matches(/^[0-9]+$/, "Số điện thoại không được chứa kí tự")
+    .required(),
   email: yup.string().label("Email").email().max(255).required(),
   password: yup
     .string()
