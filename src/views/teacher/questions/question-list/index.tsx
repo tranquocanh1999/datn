@@ -114,6 +114,9 @@ const QuestionList: React.FC = (): JSX.Element => {
       sortable: false,
       minWidth: 150,
       flex: 1,
+      renderCell(params: any) {
+        return <MathEquation value={params.row.note} />;
+      },
     },
   ];
 

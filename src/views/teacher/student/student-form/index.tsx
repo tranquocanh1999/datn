@@ -246,9 +246,10 @@ const StudentForm: React.FC<FormProps> = (props): JSX.Element => {
           <FieldInput
             name="password"
             label="Mật khẩu"
-            placeholder="Số điện thoại"
+            placeholder="Mật khẩu"
             value={formik.values.password}
             onChange={formik.handleChange}
+            type="password"
             errorText={
               (formik.touched.password && formik.errors.password) || ""
             }
@@ -261,6 +262,7 @@ const StudentForm: React.FC<FormProps> = (props): JSX.Element => {
             placeholder="Nhập lại mật khẩu"
             value={formik.values.confirmPassword}
             onChange={formik.handleChange}
+            type="password"
             errorText={
               (formik.touched.confirmPassword &&
                 formik.errors.confirmPassword) ||

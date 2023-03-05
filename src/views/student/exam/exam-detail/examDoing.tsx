@@ -4,6 +4,7 @@ import moment, { Moment } from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import SubmitDialog from "../../../../components/confirm/submit-dialog";
+import MathEquation from "../../../../components/math/math-equation";
 import { examSubmit } from "../../../../features/competitionSlice";
 import { levels } from "../../../../shared/contants/question";
 import style from "./exam-detail.module.scss";
@@ -136,12 +137,12 @@ const ExamDoing: React.FC<{
                       id={`question_${item.index + questionIndex + 1}`}
                       className={style.questionList}
                     >
-                      <p>
+                      <span>
                         <b className={style.questionIndex}>
                           Câu {item.index + questionIndex + 1}.
                         </b>
-                        {question.content}
-                      </p>
+                        <MathEquation value={question.content} />
+                      </span>
                       <ol type="A">
                         {question.choiceAnswers?.map(
                           (answer: any, i: number) => (
@@ -181,7 +182,7 @@ const ExamDoing: React.FC<{
                                   className="cursor-pointer"
                                   htmlFor={question.id + i}
                                 >
-                                  {answer}
+                                  <MathEquation value={answer} />
                                 </label>
                               </li>
                             </div>

@@ -1,79 +1,112 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useEffect, useState } from "react";
-import Grid from "../../../../components/grid";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../app/rootReducer";
-import { getStudentList } from "../../../../features/competitionSlice";
+import {
+  getDataDegree,
+  getStudentList,
+} from "../../../../features/competitionSlice";
 import style from "./exam-detail.module.scss";
-import { Button } from "@mui/material";
+import { Button, ButtonProps, createSvgIcon } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
+import getTableColumn from "./Colums";
+import {
+  DataGrid,
+  GridCsvExportOptions,
+  GridToolbarContainer,
+  useGridApiContext,
+} from "@mui/x-data-grid";
+import { Chart } from "./chart";
 
-const StudentGrid: React.FC<{ id: string }> = (props): JSX.Element => {
-  const columns = [
-    {
-      field: "fullName",
-      headerName: "Tên học sinh",
-      minWidth: 200,
-      flex: 1,
-    },
-    {
-      field: "status",
-      headerName: "Tình trạng",
-      width: 200,
-      renderCell(params: any) {
-        return (
-          <div
-            className={
-              params.row.status === null
-                ? style.todo
-                : params.row.status === "0"
-                ? style.in_progress
-                : style.done
-            }
-          >
-            {params.row.status === null
-              ? "Chưa làm bài"
-              : params.row.status === "0"
-              ? "Đang làm bài"
-              : "Đã nộp bài"}
-          </div>
-        );
-      },
-    },
-    {
-      field: "degree",
-      headerName: "Điểm số",
-      width: 200,
-    },
-  ];
-  const data = useSelector((state: RootState) => state?.competition?.students);
+const StudentGrid: React.FC<{
+  id: string;
+  totalQuestion: number;
+  title: string;
+}> = (props): JSX.Element => {
+  const { id, totalQuestion, title } = props;
+
+  const data: any =
+    useSelector((state: RootState) => state?.competition?.students) || [];
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch<any>(getStudentList(props.id));
+    dispatch<any>(getStudentList(id));
+    dispatch<any>(getDataDegree(id));
   }, []);
+
+  const Footer = () => {
+    return <div></div>;
+  };
+
+  function CustomToolbar() {
+    const apiRef = useGridApiContext();
+
+    const handleExport = (options: GridCsvExportOptions) =>
+      apiRef.current.exportDataAsCsv(options);
+
+    const ExportIcon = createSvgIcon(
+      <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z" />,
+      "SaveAlt"
+    );
+
+    const buttonBaseProps: ButtonProps = {
+      color: "primary",
+      size: "small",
+      sx: {
+        textTransform: "none",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "32px",
+        padding: "0 8px",
+        minWidth: "12px",
+        marginRight: "8px",
+      },
+    };
+
+    return (
+      <GridToolbarContainer>
+        <Button
+          {...buttonBaseProps}
+          onClick={() =>
+            handleExport({
+              fileName: title,
+              utf8WithBom: true,
+            })
+          }
+          variant="outlined"
+        >
+          <ExportIcon />
+        </Button>
+
+        <Button
+          {...buttonBaseProps}
+          onClick={() => {
+            dispatch<any>(getStudentList(id));
+            dispatch<any>(getDataDegree(id));
+          }}
+          variant="outlined"
+        >
+          <ReplayIcon />
+        </Button>
+      </GridToolbarContainer>
+    );
+  }
 
   return (
     <>
-      <Button
-        sx={{ marginBottom: "8px", marginLeft: "auto" }}
-        onClick={() => {
-          dispatch<any>(getStudentList(props.id));
+      <Chart />
+      <DataGrid
+        columns={getTableColumn(style, totalQuestion)}
+        rows={data}
+        sx={{ height: "calc(100vh - 200px)", width: "100%" }}
+        paginationMode="server"
+        components={{
+          Footer: Footer,
+          Toolbar: CustomToolbar,
         }}
-        variant="contained"
-      >
-        <ReplayIcon />
-      </Button>
-      <Grid
-        columns={columns}
-        data={data || []}
-        sxBox={{ height: "calc(100vh - 200px)", width: "100%" }}
-        action={{ edit: false, delete: false }}
-        message=""
-        initialState={{}}
-        total={0}
       />
     </>
   );

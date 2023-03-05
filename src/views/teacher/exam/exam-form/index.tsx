@@ -146,7 +146,7 @@ const ExamForm: React.FC<FormProps> = (props): JSX.Element => {
         <FieldInput
           name="code"
           label="Mã bài thi"
-          placeholder="Mã nhân viên"
+          placeholder="Mã bài thi"
           value={formik.values.code}
           onChange={formik.handleChange}
           errorText={(formik.touched.code && formik.errors.code) || ""}

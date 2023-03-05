@@ -3,6 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { role } from "../shared/contants/role";
 import { AppThunk } from "../app/store";
 import { getUser, signIn, signOut } from "../services/authService";
+import { typeToast } from "../shared/contants/toast";
 
 interface UserState {
   role?: number | null;
@@ -12,6 +13,7 @@ interface UserState {
   idToken?: string;
   toast?: any;
   user?: any;
+  error?: any;
 }
 
 const initialState = {
@@ -25,6 +27,7 @@ const initialState = {
     type: "",
   },
   user: {},
+  error: {},
 } as UserState;
 
 const userSlice = createSlice({
@@ -64,7 +67,9 @@ export const login =
       dispatch(setToken(response.data));
       let user = await getUser();
       dispatch(setUser({ user: user.data }));
-    } catch (error: any) {}
+    } catch (error: any) {
+      dispatch(setToast({ message: error.message, type: typeToast.ERROR }));
+    }
   };
 
 export const logout =
