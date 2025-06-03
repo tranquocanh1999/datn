@@ -19,6 +19,8 @@ const TeacherRoutes: React.FC = (): JSX.Element => {
     <Routes>
       <Route path="/" element={<TeacherLayout />}>
         <Route index element={<Navigate to="/class" replace />} />
+        <Route path="/login" element={<Navigate to="/class" replace />} />
+
         <Route
           path="/class"
           element={

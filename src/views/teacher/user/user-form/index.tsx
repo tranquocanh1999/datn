@@ -143,7 +143,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
       maxWidth={"xl"}
     >
       <DialogTitle className={style.form_title}>
-        <div>{isEdit ? "Chỉnh sửa học sinh" : "Thêm mới học sinh"}</div>
+        <div>{isEdit ? "Chỉnh sửa nhân viên" : "Thêm mới nhân viên"}</div>
         <ToggleButton
           value="left"
           aria-label="left aligned"
@@ -256,7 +256,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
         <div className="d-flex">
           <SelectInput
             name="subjects"
-            label="Lớp học"
+            label="Môn học"
             value={formik.values.subjects || []}
             multiple
             onChange={(e: any) => {
@@ -294,6 +294,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
             placeholder="Mật khẩu"
             value={formik.values.password}
             onChange={formik.handleChange}
+            type="password"
             errorText={
               (formik.touched.password && formik.errors.password) || ""
             }
@@ -306,6 +307,7 @@ const UserForm: React.FC<FormProps> = (props): JSX.Element => {
             placeholder="Nhập lại mật khẩu"
             value={formik.values.confirmPassword}
             onChange={formik.handleChange}
+            type="password"
             errorText={
               (formik.touched.confirmPassword &&
                 formik.errors.confirmPassword) ||
