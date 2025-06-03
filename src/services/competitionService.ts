@@ -66,3 +66,7 @@ export async function submitExam(id: string, data: any): Promise<any> {
 export async function getExamStudents(id: string): Promise<any> {
   return axios().get(`student-exam/exam/student/${id}`);
 }
+
+export async function getDegreeData(id: string): Promise<any> {
+  return axios().get(`student-exam/exam/degree-graph/${id}`);
+}

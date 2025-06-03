@@ -23,6 +23,7 @@ import style from "./exam-detail.module.scss";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { levels } from "../../../../shared/contants/question";
 import StudentGrid from "./grid-student";
+import MathEquation from "../../../../components/math/math-equation";
 
 const ExamDetail: React.FC = (): JSX.Element => {
   const params = useParams();
@@ -30,6 +31,8 @@ const ExamDetail: React.FC = (): JSX.Element => {
     (state: RootState) => state?.competition?.competition
   );
   const [id, setID] = useState<any>(0);
+  const [totalQuestion, setTotalQuestion] = useState<any>(0);
+
   const [questions, setQuestions] = useState<any>([]);
   const exams = useSelector((state: RootState) => state?.competition?.exams);
   const dispatch = useDispatch();
@@ -63,6 +66,7 @@ const ExamDetail: React.FC = (): JSX.Element => {
         index += exam.questionLv4.length;
       }
       setQuestions(data);
+      setTotalQuestion(index);
     }
   }, [exams, id]);
 
@@ -151,12 +155,12 @@ const ExamDetail: React.FC = (): JSX.Element => {
                     </div>
                     {item.data?.map((question: any, questionIndex: number) => (
                       <div key={question.id} className={style.questionList}>
-                        <p>
+                        <span>
                           <b className={style.questionIndex}>
                             Câu {item.index + questionIndex + 1}.
                           </b>
-                          {question.content}
-                        </p>
+                          <MathEquation value={question.content} />
+                        </span>
                         <ol type="A">
                           {question.choiceAnswers?.map(
                             (answer: any, i: number) => (
@@ -168,14 +172,16 @@ const ExamDetail: React.FC = (): JSX.Element => {
                                     : ""
                                 }
                               >
-                                {answer}
+                                <MathEquation value={answer} />
                               </li>
                             )
                           )}
                         </ol>
                         <div>
                           <h4 style={{ margin: "8px 0" }}>Chú giải:</h4>
-                          <p style={{ margin: "0 0 8px 0" }}>{question.note}</p>
+                          <p style={{ margin: "0 0 8px 0" }}>
+                            <MathEquation value={question.note} />
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -196,7 +202,15 @@ const ExamDetail: React.FC = (): JSX.Element => {
           </AccordionSummary>
           <AccordionDetails>
             <Typography>
-              <StudentGrid id={params.id || ""} />
+              {totalQuestion ? (
+                <StudentGrid
+                  title={competition.title}
+                  id={params.id || ""}
+                  totalQuestion={totalQuestion}
+                />
+              ) : (
+                ""
+              )}
             </Typography>
           </AccordionDetails>
         </Accordion>

@@ -5,6 +5,7 @@ import {
   competitionForm,
   getCompetitionExamByStudent,
   getCompetitionExams,
+  getDegreeData,
   getExamStudents,
   getListCompetitionByStudent,
   startExam,
@@ -30,6 +31,7 @@ interface CompetitionState {
   exams: any;
   exam: any;
   students: any;
+  degreeData: any;
 }
 
 const initialState = {
@@ -42,6 +44,7 @@ const initialState = {
   exams: [],
   exam: {},
   students: [],
+  degreeData: [],
 } as CompetitionState;
 
 const competitionSlice = createSlice({
@@ -55,6 +58,9 @@ const competitionSlice = createSlice({
     },
     setStudents(state, action: any) {
       state.students = action.payload;
+    },
+    setDegreeData(state, action: any) {
+      state.degreeData = action.payload;
     },
     setExams(state, action: any) {
       state.exams = action.payload.data;
@@ -175,6 +181,23 @@ export const getStudentList =
     }
   };
 
+export const getDataDegree =
+  (id: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      let response = await getDegreeData(id);
+      dispatch(setDegreeData(response.data));
+    } catch (error: any) {
+      dispatch(
+        setToast({
+          message: error.message,
+          type: typeToast.ERROR,
+        })
+      );
+      dispatch(setCompetitionLoading(true));
+    }
+  };
+
 export const examStart =
   (id: string): AppThunk =>
   async (dispatch) => {
@@ -267,6 +290,7 @@ export const {
   setExams,
   setStatus,
   setStudents,
+  setDegreeData,
   setExam,
 } = competitionSlice.actions;
 export default competitionSlice.reducer;

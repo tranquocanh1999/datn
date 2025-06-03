@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import MathEquation from "../../../../components/math/math-equation";
 import { levels } from "../../../../shared/contants/question";
 import style from "./exam-detail.module.scss";
 
 const ExamSuccessDetail: React.FC<{ exam: any }> = (props): JSX.Element => {
   const { exam } = props;
   const [questions, setQuestions] = useState<any>([]);
+  const [answers, setAnswers] = useState<any>([]);
 
   useEffect(() => {
     if (exam && exam.exam) {
@@ -27,6 +29,11 @@ const ExamSuccessDetail: React.FC<{ exam: any }> = (props): JSX.Element => {
         data.push({ level: 4, index: index, data: ex.questionLv4 });
         index += ex.questionLv4.length;
       }
+      let answer: { [key: string]: number } = {};
+      exam.answers.forEach((item: any) => {
+        answer[item.questionId] = item.answer;
+      });
+      setAnswers(answer);
       setQuestions(data);
     }
   }, [exam]);
@@ -38,12 +45,12 @@ const ExamSuccessDetail: React.FC<{ exam: any }> = (props): JSX.Element => {
           <div className={style.partTitle}>Phần {levels[item.level - 1]}</div>
           {item.data?.map((question: any, questionIndex: number) => (
             <div key={question.id} className={style.questionList}>
-              <p>
+              <span>
                 <b className={style.questionIndex}>
                   Câu {item.index + questionIndex + 1}.
                 </b>
-                {question.content}
-              </p>
+                <MathEquation value={question.content} />
+              </span>
 
               <ol type="A">
                 {question.choiceAnswers?.map((answer: any, i: number) => (
@@ -52,23 +59,25 @@ const ExamSuccessDetail: React.FC<{ exam: any }> = (props): JSX.Element => {
                     className={
                       i === question.correctAnswer
                         ? style.questionCorrect
-                        : exam.answers[question.id] === i
+                        : answers[question.id] === i
                         ? style.questionWrong
                         : ""
                     }
                   >
-                    {answer}
+                    <MathEquation value={answer} />
                   </li>
                 ))}
               </ol>
               <div>
-                <h4 style={{ margin: "8px 0" }}>Kết quả:</h4>{" "}
-                {question.correctAnswer === exam.answers[question.id] ? (
+                <h4 style={{ margin: "8px 0" }}>Kết quả:</h4>
+                {answers[question.id] === question.correctAnswer ? (
                   <div className={style.questionCorrect}>Đúng</div>
                 ) : (
                   <div className={style.questionWrong}>Sai</div>
                 )}
-                <p style={{ margin: "0 0 8px 0" }}>{question.note}</p>
+                <p style={{ margin: "0 0 8px 0" }}>
+                  <MathEquation value={question.note} />
+                </p>
               </div>
             </div>
           ))}

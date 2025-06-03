@@ -248,7 +248,7 @@ const QuestionForm: React.FC<FormProps> = (props): JSX.Element => {
           {answers[formik.values?.correctAnswer]}
 
           <div className={style.title}>Lời giải:</div>
-          {formik.values.note}
+          {open ? <MathEquation value={formik.values.note} /> : ""}
         </div>
       </DialogContent>
       <DialogActions className={style.form_action}>

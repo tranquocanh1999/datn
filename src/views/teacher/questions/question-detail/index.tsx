@@ -98,7 +98,9 @@ const QuestionDetail: React.FC<FormProps> = (props): JSX.Element => {
               <TableCell sx={{ borderRight: 1, borderColor: "grey.300" }}>
                 <div className={style.title}>Chú giải</div>
               </TableCell>
-              <TableCell>{data?.note}</TableCell>
+              <TableCell>
+                <MathEquation value={data?.note} />
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
